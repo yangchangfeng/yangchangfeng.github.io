@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>todolist</title>
+    <style>
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+    }
+    
+    body {
+        font: 14px 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        line-height: 1.4em;
+        background: #f5f5f5;
+        color: #4d4d4d;
+        margin: 0 auto;
+        font-weight: 300;
+    }
+    
+    h1 {
+        position: absolute;
+        top: 10px;
+        width: 100%;
+        font-size: 100px;
+        font-weight: 100;
+        text-align: center;
+        color: rgba(175, 47, 47, 0.15);
+        text-rendering: optimizeLegibility;
+    }
+    
+    section {
+        background: #fff;
+        position: relative;
+        box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 25px 50px 0 rgba(0, 0, 0, 0.1);
+        min-width: 230px;
+        max-width: 550px;
+        margin: auto;
+        margin-top: 140px;
+        cursor: pointer;
+    }
+    
+    ul {
+        list-style: none;
+        padding-left: 10px;
+    }
+    
+    li {
+        position: relative;
+        font-size: 24px;
+        border-bottom: 1px solid #ededed;
+    }
+    
+    li * {
+        display: inline-block;
+    }
+    
+    #close {
+        display: none;
+        position: absolute;
+        right: 40px;
+        font-size: 30px;
+        line-height: 30px;
+        color: red;
+        top: 14px;
+    }
+    
+    li:hover #close {
+        display: inline-block;
+        color: red;
+    }
+    
+    .spanborder {
+        border: 2px solid pink;
+    }
+    
+    #enter {
+        position: relative;
+        left: 13px;
+        height: 50px;
+        width: 400px;
+        font-size: 22px;
+        outline-style: none;
+        border: 1px solid white;
+    }
+    
+    ::-webkit-input-placeholder {
+        color: #e6e6e6;
+    }
+    
+    .pp {
+        /*    //height: 28px;*/
+        display: inline-block;
+        line-height: 28px;
+        padding: 15px 20px 15px 15px;
+        word-break: break-all;
+        margin: 0;
+        width: 400px;
+        transition: color 0.8s ease;
+        color: black;
+    }
+    
+    .linestyle {
+        text-decoration: line-through;
+        color: grey;
+    }
+    
+    .hook {
+        visibility: hidden;
+    }
+    
+    .hook::after {
+        visibility: visible;
+        content: "";
+        color: red;
+        font-size: 23px;
+        height: 30px;
+        width: 30px;
+        border-radius: 50%;
+        display: block;
+        border: 1px solid grey;
+        position: absolute;
+        top: 0;
+        left: -5px;
+        margin-top: 14px;
+    }
+    
+    .hook:checked::after {
+        content: "👻";
+    }
+    
+    .hidden {
+        display: none;
+    }
+    
+    #lastline {
+        height: 30px;
+    }
+    
+    #lastline span {
+        margin-left: 20px;
+        font-size: 16px;
+        padding: 5px;
+    }
+    #todo-count{
+        display:inline-block;
+        width:98px;
+        margin-left:15px;
+    }
+    </style>
+</head>
+
+<body>
+    <h1>todos</h1>
+    <section id='spy'>
+        <ul id="parent">
+            <li>
+                <input type="checkbox" id='allchecked' class='hook hidden'>
+                <input autofocus id="enter" type="text" placeholder="What needs to be done?">
+            </li>
+        </ul>
+        <div id='lastline' class='hidden'>
+            <span id='todo-count'></span>
+            <span id='all'>All</span>
+            <span id='active'>Active</span>
+            <span id='completed'>Completed</span>
+            <span id=cc style="visibility:hidden">Clear completed</span>
+        </div>
+    </section>
+    <script>
+    var ull = document.getElementById('parent')
+    var countt = 0
+    var allinput
+        //input输入框的事件
+    enter.addEventListener('keydown', function(e) {
+            if (e.key === "Enter" && enter.value.trim()) {
+                all.classList.add('spanborder')
+
+                allchecked.classList.remove('hidden')
+                lastline.classList.remove('hidden')
+                countt++;
+                var aa = document.createElement('p')
+                ull.appendChild(aa)
+                aa.outerHTML = `<li class='lili${countt} lili'>
+            <input type="checkbox" class='hook'>
+            <p class='pp' contentEditable="true">${enter.value}</p>
+            <span id='close'>x</span>
+        </li>`
+                enter.value = ''
+            }
+            allinput = document.querySelectorAll('.lili input')
+            todocountgo()
+        })
+        // Clear completed 事件,cc事件要有completed出现才有
+    document.addEventListener('click', function(e) {
+        let count = 0
+        let allli = document.querySelectorAll('.lili')
+            //下面是没有任何任务是将最后显示栏和allcheck按钮隐藏
+        if (allli.length === 0) {
+            allchecked.classList.add('hidden')
+            lastline.classList.add('hidden')
+        }
+        for (let i = 0; i < allli.length; i++) {
+            let x = allli[i]
+            let t = allli[i].firstElementChild.checked
+            if (t == true) {
+                cc.style.visibility = 'visible'
+            } else {
+                count++
+            }
+        }
+        if (count === allli.length) {
+            cc.style.visibility = 'hidden'
+        }
+    })
+    cc.addEventListener('click', function(e) {
+            let allli = document.querySelectorAll('.lili')
+            for (let i = 0; i < allli.length; i++) {
+                let x = allli[i]
+                let t = allli[i].firstElementChild.checked
+                if (t == true) {
+                    x.parentElement.removeChild(x)
+                }
+                cc.style.visibility = 'hidden'
+            }
+        })
+        //写active事件，将没做的列出来
+    active.addEventListener('click', function(e) {
+        activego()
+    })
+
+    function activego() {
+        let allli = document.querySelectorAll('.lili')
+        for (let i = 0; i < allli.length; i++) {
+            let x = allli[i]
+            let t = allli[i].firstElementChild.checked
+            if (t == true) {
+                x.style.display = 'none'
+            } else {
+                x.style.display = 'block'
+            }
+
+        }
+    }
+    //写all 事件，将所有的项都列出来
+    all.addEventListener('click', function(e) {
+            let allli = document.querySelectorAll('.lili')
+            for (let i = 0; i < allli.length; i++) {
+                let x = allli[i]
+                let t = allli[i].firstElementChild.checked
+                if (x.style.display = 'none') {
+                    x.style.display = 'block'
+                }
+            }
+        })
+        //将completed事件封装为函数
+    completed.addEventListener('click', function(e) {
+        completedgo()
+    })
+
+    function completedgo() {
+        let allli = document.querySelectorAll('.lili')
+        for (let i = 0; i < allli.length; i++) {
+            let x = allli[i]
+            let t = allli[i].firstElementChild.checked
+            if (t == true) {
+                x.style.display = 'block'
+            } else {
+                x.style.display = 'none'
+            }
+        }
+    }
+    //写全选事件
+    allchecked.addEventListener('click', function(e) {
+            let allli = document.querySelectorAll('.lili')
+            for (let i = 0; i < allli.length; i++) {
+                let x = allli[i]
+                let t = allli[i].firstElementChild.checked
+                x.style.display == 'block'
+                if (allchecked.checked == true) {
+                    allli[i].firstElementChild.checked = true
+                } else {
+                    allli[i].firstElementChild.checked = false
+                }
+
+            }
+
+        })
+        //在section上设置一个监听事件，确认上次的点击方位是否在active或者completed等地方，是的话在这两个地方如果点击了list也会动态变化。
+    var lastclick = all
+    var newclick = document.createElement('i')
+    spy.addEventListener('click', function(e) {
+            todocountgo()
+            var newclick = e.target
+            if (newclick == active || newclick == completed || newclick == all) {
+                lastclick.classList.remove('spanborder')
+                lastclick = newclick
+                newclick.classList.add('spanborder')
+            }
+            //为什么把下面两个if放在上面if的里面就没用
+            if (lastclick == active) {
+                activego()
+            }
+            if (lastclick == completed) {
+                completedgo()
+            }
+            //下面是给打勾的事项加中划线
+            if (e.target.tagName == 'INPUT' && e.target.nextElementSibling.tagName == 'P') {
+                // e.target.nextElementSibling.classList.toggle('linestyle')
+                setTimeout(function() {
+                    e.target.nextElementSibling.classList.toggle('linestyle')
+                }, 10)
+            }
+            //下面是是给全选加删中划线
+            if (e.target.id == 'allchecked') {
+                for (let i = 0; i < allinput.length; i++) {
+                    if (allinput[i].checked && allinput[i].nextElementSibling.classList.contains('linestyle') !== true) {
+                        allinput[i].nextElementSibling.classList.add('linestyle')
+                    }
+                    if (!allinput[i].checked && allinput[i].nextElementSibling.classList.contains('linestyle')) {
+                        allinput[i].nextElementSibling.classList.remove('linestyle')
+                    }
+
+                }
+
+            }
+            //写剩余的代办事件个数提醒，0个和1个item是单数其他时候为items left
+            if (e.target.id == 'close') {
+                var close = document.querySelector('#close')
+                close.parentElement.remove()
+            }
+            todocountgo()
+
+        })
+        //计算未办事件个数函数
+    function todocountgo() {
+        let todocount = document.querySelector('#todo-count')
+        let allli = document.querySelectorAll('.lili')
+        let count = 0
+        for (let i = 0; i < allli.length; i++) {
+            let t = allli[i].firstElementChild.checked
+            if (t == false) {
+                count++
+            }
+        }
+        if (count === 0) {
+            //全选按键也要打上勾
+            allchecked.checked = true
+            todocount.innerText = '0 item left'
+        }
+        if (count === 1) {
+            todocount.innerText = '1 item left'
+            allchecked.checked = false
+
+        }
+        if (count > 1) {
+            todocount.innerText = `${count} items left`
+            allchecked.checked = false
+        }
+    }
+    </script>
+</body>
+
+</html>
