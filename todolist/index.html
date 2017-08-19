@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>todolist</title>
-    <style>
+    <style type='text/less'>
     html,
     body {
         margin: 0;
@@ -51,12 +51,11 @@
         position: relative;
         font-size: 24px;
         border-bottom: 1px solid #ededed;
+        * {
+            display: inline-block;
+        }
     }
-    
-    li * {
-        display: inline-block;
-    }
-    
+        
     #close {
         display: none;
         position: absolute;
@@ -86,10 +85,6 @@
         border: 1px solid white;
     }
     
-    ::-webkit-input-placeholder {
-        color: #e6e6e6;
-    }
-    
     .pp {
         /*    //height: 28px;*/
         display: inline-block;
@@ -109,9 +104,7 @@
     
     .hook {
         visibility: hidden;
-    }
-    
-    .hook::after {
+        &::after {
         visibility: visible;
         content: "";
         color: red;
@@ -125,10 +118,10 @@
         top: 0;
         left: -5px;
         margin-top: 14px;
-    }
-    
-    .hook:checked::after {
-        content: "👻";
+        }
+        &:checked::after{
+            content:"👻";
+        };
     }
     
     .hidden {
@@ -137,13 +130,13 @@
     
     #lastline {
         height: 30px;
-    }
-    
-    #lastline span {
+        span {
         margin-left: 20px;
         font-size: 16px;
         padding: 5px;
+         }
     }
+       
     #todo-count{
         display:inline-block;
         width:98px;
@@ -169,6 +162,7 @@
             <span id=cc style="visibility:hidden">Clear completed</span>
         </div>
     </section>
+    <script src='./less.js'></script>
     <script>
     var ull = document.getElementById('parent')
     var countt = 0
@@ -307,12 +301,14 @@
                 completedgo()
             }
             //下面是给打勾的事项加中划线
-            if (e.target.tagName == 'INPUT' && e.target.nextElementSibling.tagName == 'P') {
-                // e.target.nextElementSibling.classList.toggle('linestyle')
+            if (e.target.tagName == 'INPUT'&& e.target.nextElementSibling) {
+            // e.target.nextElementSibling.classList.toggle('linestyle')
+            if (e.target.nextElementSibling.tagName=='P') {
                 setTimeout(function() {
                     e.target.nextElementSibling.classList.toggle('linestyle')
                 }, 10)
             }
+        }
             //下面是是给全选加删中划线
             if (e.target.id == 'allchecked') {
                 for (let i = 0; i < allinput.length; i++) {
