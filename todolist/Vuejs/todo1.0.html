@@ -4,18 +4,26 @@
 <head>
     <meta charset="UTF-8">
     <title>Vuetodo</title>
+    <style>
+        .hasborder{
+            border:1px solid red;
+        }
+        ul {
+           list-style: none;
+        }
+    </style>
 </head>
 
 <body>
     <div id='todolist'>
         <header>
-            <input type="checkbox" @click='toggle' v-model='allcheck'>
+            <input type="checkbox" :checked='ifallchecked' @click='checkgook'>
             <input type="text" @keyup.enter="add" v-model='newtodo' placeholder="what needs to be done?">
         </header>
         <main>
             <ul>
-                <li v-for='(todo,index) in todos'>
-                    <input type="checkbox" v-model=todo.done @click='checkgook' v-show='show'>
+                <li v-for='(todo,index) in todos' v-if="show=='all'||(show=='active'&&todo.done==false)||(show=='complete'&&todo.done==true)">
+                    <input type="checkbox" v-model=todo.done>
                     <input type="text" v-model=todo.content>
                     <span>{{todo.content}}</span>
                     <span @click='remove(index)'>X</span>
@@ -23,38 +31,32 @@
             </ul>
         </main>
         <footer>
-        <span id='todoleft'>{{left}} items left</span>
-        <span id='all' @click=showall>All</span>
-        <span id='active' @click=showactive>Active</span>
-        <span id='complete'>Complete</span>
-        <span id='cc'>Clear Complete</span>
+        <span>{{lefts}} items left</span>
+        <span @click="show='all'" v-bind:class="{hasborder:show=='all'}">All</span>
+        <span @click="show='active'" v-bind:class="{hasborder:show=='active'}">Active</span>
+        <span @click="show='complete'" v-bind:class="{hasborder:show=='complete'}">Complete</span>
+        <span @click='cc'>Clear Complete</span>
         </footer>
-    </div>
-    <div id='test'>
-    	<input type="checkbox" :check='aaa'>
     </div>
 </body>
 <script src='./vue.js'></script>
 <script>
-new Vue({
-	el:'#test',
-	data:{
-
-	},
-	computed:{
-        aaa:function(){
-        	return true
-        }
-	}
-})
-new Vue({
+var app=new Vue({
     el: '#todolist',
     data: {
-        allcheck: false,
         newtodo: '',
         todos: [],
-        left:'',
-        show:true,
+        show:'all',
+    },
+    computed:{
+        ifallchecked:function(){
+            if(this.todos.length){              
+            return this.todos.every(it=>it.done==true)
+            }else return false
+        },
+        lefts:function(){
+            return this.todos.filter(it=>it.done==false).length
+        }
     },
     methods: {
         add: function() {
@@ -64,35 +66,23 @@ new Vue({
                     done: false,
                 })
                 this.newtodo = '';
-                this.allcheck=false
             }
+
         },
         remove: function(index) {
             this.todos.splice(index, 1)
         },
-        toggle: function() {
-            if (this.todos.some(it => it.done == false)) {
-                this.todos.forEach(it => it.done = true)
-                this.allcheck = true
-            } else {
-                this.todos.forEach(it => it.done = false)
-                this.allcheck = false
-            }
-        },
         checkgook: function() {
-            if (this.todos.every(it => it.done == true)) {
-                this.allcheck = true
-            } else {
-                this.allcheck = false
+            if(this.todos.every(it=>it.done==true)){
+                this.todos.forEach(it=>it.done=false)
+            }else{
+                this.todos.forEach(it=>it.done=true)
             }
         },
-        showall:function(){
-           //this.todos.forEach(it=>it.show=true)
+        cc:function(){
+            var t=this.todos.filter(it=>it.done==false)
+            this.todos=t
         },
-        showactive:function(e){
-        	console.log(e)
-        	this.todos.forEach(it=>{if(it.done)this.show=false;else this.show=true})
-        }
     }
 })
 </script>
