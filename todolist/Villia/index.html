@@ -4,13 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <title>todolist</title>
-    <style type='text/less'>
+    <style>
     html,
     body {
         margin: 0;
         padding: 0;
     }
-    
+
     body {
         font: 14px 'Helvetica Neue', Helvetica, Arial, sans-serif;
         line-height: 1.4em;
@@ -19,7 +19,7 @@
         margin: 0 auto;
         font-weight: 300;
     }
-    
+
     h1 {
         position: absolute;
         top: 10px;
@@ -30,7 +30,7 @@
         color: rgba(175, 47, 47, 0.15);
         text-rendering: optimizeLegibility;
     }
-    
+
     section {
         background: #fff;
         position: relative;
@@ -41,21 +41,22 @@
         margin-top: 140px;
         cursor: pointer;
     }
-    
+
     ul {
         list-style: none;
         padding-left: 10px;
     }
-    
+
     li {
         position: relative;
         font-size: 24px;
         border-bottom: 1px solid #ededed;
-        * {
-            display: inline-block;
-        }
     }
-        
+
+    li * {
+        display: inline-block;
+    }
+
     #close {
         display: none;
         position: absolute;
@@ -65,16 +66,16 @@
         color: red;
         top: 14px;
     }
-    
+
     li:hover #close {
         display: inline-block;
         color: red;
     }
-    
+
     .span-border {
         border: 2px solid pink;
     }
-    
+
     #enter {
         position: relative;
         left: 13px;
@@ -84,9 +85,8 @@
         outline-style: none;
         border: 1px solid white;
     }
-    
+
     .pp {
-        /*    //height: 28px;*/
         display: inline-block;
         line-height: 28px;
         padding: 15px 20px 15px 15px;
@@ -96,15 +96,17 @@
         transition: color 0.8s ease;
         color: black;
     }
-    
+
     .linestyle {
         text-decoration: line-through;
         color: grey;
     }
-    
+
     .hook {
         visibility: hidden;
-        &::after {
+    }
+
+    .hook::after {
         visibility: visible;
         content: "";
         color: red;
@@ -118,29 +120,47 @@
         top: 0;
         left: -5px;
         margin-top: 14px;
-        }
-        &:checked::after{
-            content:"👻";
-        };
     }
-    
+
+    .hook:checked::after {
+        content: "👻";
+    }
+
     .hidden {
         display: none;
     }
-    
+
     #lastline {
         height: 30px;
-        span {
+    }
+
+    #lastline span {
         margin-left: 20px;
         font-size: 16px;
         padding: 5px;
-         }
     }
-       
-    #todo-count{
-        display:inline-block;
-        width:98px;
-        margin-left:15px;
+
+    #todo-count {
+        display: inline-block;
+        width: 98px;
+        margin-left: 15px;
+    }
+    #lastline{
+        background-color: #fff;
+        position: relative;
+        z-index:999;
+    }
+
+    #lastline::before {
+        content: '';
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        height: 50px;
+        overflow: hidden;
+        box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2), 0 8px 0 -3px #f6f6f6, 0 9px 1px -3px rgba(0, 0, 0, 0.2), 0 16px 0 -6px #f6f6f6, 0 17px 2px -6px rgba(0, 0, 0, 0.2);
+        z-index:-999;
     }
     </style>
 </head>
@@ -162,28 +182,27 @@
             <span id=cc style="visibility:hidden">Clear completed</span>
         </div>
     </section>
-    <script src='./less.js'></script>
     <script>
-        var local = window.localStorage
+    var local = window.localStorage
     // var ull = document.getElementById('parent')
     var count = 0
     var allinput
-    // local.data 看事件有没有缓存
-    if (/lili/.test(local.data)) {
-        let count=0
-        items.outerHTML = local.data
+    // local.valinadata 看事件有没有缓存
+    if (/lili/.test(local.valinadata)) {
+        let count = 0
+        items.outerHTML = local.valinadata
         allinput = document.querySelectorAll('.lili input')
         lastline.classList.remove('hidden')
         all.classList.add('span-border')
         todocountgo()
-        for (let i=0;i<allinput.length;i++) {
+        for (let i = 0; i < allinput.length; i++) {
             if (allinput[i].nextElementSibling.classList.contains('linestyle')) {
                 count++;
                 allinput[i].checked = true
             }
         }
-        if(count==allinput.length){
-            allchecked.checked=true
+        if (count == allinput.length) {
+            allchecked.checked = true
         }
 
     }
@@ -206,7 +225,7 @@
         }
         allinput = document.querySelectorAll('.lili input')
         todocountgo()
-        local.data = items.outerHTML
+        local.valinadata = items.outerHTML
     })
     // Clear completed 显示,Allinput 显示。
     items.addEventListener('click', function(e) {
@@ -243,7 +262,12 @@
             }
             cc.style.visibility = 'hidden'
         }
-        local.data = items.outerHTML
+        allli = document.querySelectorAll('.lili')
+        if (!allli.length) {
+            allchecked.classList.add('hidden')
+            lastline.classList.add('hidden')
+        }
+        local.valinadata = items.outerHTML
     })
     //写active事件，将没做的列出来
     active.addEventListener('click', function(e) {
@@ -348,9 +372,9 @@
         if (e.target.id == 'close') {
             var close = document.querySelector('#close')
             close.parentElement.remove()
-            local.data = items.outerHTML
+            local.valinadata = items.outerHTML
         }
-        local.data = items.outerHTML
+        local.valinadata = items.outerHTML
         todocountgo()
 
     })
