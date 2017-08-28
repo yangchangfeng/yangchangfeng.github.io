@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>天气预报插件</title>
+    <script src="./jquery-3.2.1.js"></script>
+    <script src="img.js"></script>
+    <style>
+    * {
+        font-size: 14px;
+        color: white;
+    }
+    .inline-block {
+        display: inline-block;
+        vertical-align: middle;
+        text-align: center;
+        margin: 0 6px;
+    }
+    .text-left {
+        text-align: left;
+    }
+    .weather {
+        position: relative;
+    }
+    .header {
+        width: 120px;
+        height: 30px;
+        position: absolute;
+        left: 30px;
+    }
+    .item {
+        display: inline-block;
+    }
+    .time {
+        font-size: 12px;
+    }
+    .tmp {
+        font-size: 48px;
+    }
+    .tmp-small {
+        font-size: 14px;
+    }
+    .icon-big {
+        font-size: 48px;
+    }
+    .section-1 {
+        margin: 10px;
+    }
+    .hz {
+        height: 2px;
+        background-color: #c7e3fe;
+    }
+    .today,
+    .second-day {
+        border-right: 1px solid #c7e3fe;
+    }
+    .theForecast {
+        display: flex
+    }
+    .forecast {
+        flex-grow: 1;
+    }
+    .footer {
+        text-align: center;
+        font-size: 12px;
+        color: #c7e3fe;
+    }
+    .fixed {
+        background: linear-gradient(#2869e9, #79bfff);
+        width: 300px;
+        height: 0px;
+        transition: height .2s linear;
+        overflow: hidden;
+        position: absolute;
+        top: 30px;
+        left: 30px;
+    }
+    .header:hover + .fixed {
+        height: 330px;
+    }
+    .header .city,
+    .header .tmp {
+        color: #bfbfbf;
+    }
+    .icon-small {
+        height: 14px;
+        position: relative;
+        top: 2px;
+    }
+    .icon-large {
+        height: 78px;
+        position: relative;
+        top: -5px;
+        margin-right: -8px;
+    }
+    </style>
+</head>
+
+<body>
+    <div class='weather'>
+        <div class='header'>
+            <div class='item city'></div>
+            <img class='item icon-small icon'>
+            <div class='item tmp tmp-small'>33°</div>
+        </div>
+        <div class='fixed'>
+            <div class='section-1'>
+                <span class='city'></span>
+                <span class='time'></span>
+            </div>
+            <div class='section-2'>
+                <img class='icon-large inline-block icon'>
+                <div class='inline-block'>
+                    <div class='tmp'></div>
+                    <div class='theWeather'></div>
+                </div>
+                <div class='inline-block text-left'>
+                    <p class='pm25'></p>
+                    <p class='qlit'></p>
+                    <p class='aqi'></p>
+                </div>
+            </div>
+            <div class='hz'></div>
+            <div class='theForecast'>
+                <div class='today forecast inline-block'>
+                    <p></p>
+                    <img class='icon-small today-icon'>
+                    <p class='how'></p>
+                    <p class='max-min'></p>
+                </div>
+                <div class='second-day forecast inline-block'>
+                    <p></p>
+                    <img class='icon-small secondDay-icon'>
+                    <p class='how'></p>
+                    <p class='max-min'></p>
+                </div>
+                <div class='third-day forecast inline-block'>
+                    <p></p>
+                    <img class='icon-small thirdDay-icon'>
+                    <p class='how'></p>
+                    <p class='max-min'></p>
+                </div>
+            </div>
+            <div class='hz'></div>
+            <div class='footer'></div>
+        </div>
+    </div>
+    <script src='https://pv.sohu.com/cityjson'></script>
+    <script>
+    var myIp = returnCitySN.cip //获取当前ip的所属城市
+    console.log(myIp)
+    var searchScript = document.createElement('script')
+    var Myurl = `https://int.dpool.sina.com.cn/iplookup/iplookup.php?format=js&ip=${myIp}`
+    searchScript.setAttribute('src', Myurl)
+    document.body.appendChild(searchScript)
+    window.onload = function begin() {
+        var open = function() {
+            var url
+            getResponse = function(rul, callback) {
+                var xhr = new XMLHttpRequest()
+                xhr.open('GET', url)
+                xhr.onload = function() {
+                    var result = JSON.parse(xhr.responseText)
+                    callback(result.HeWeather5[0])
+                }
+                xhr.send()
+            }
+            handleResponse = function(response) {
+                console.log(response,response.basic.city)
+                var time = new Date()
+                $('.city').html('杭州啊')
+                $('.tmp').html(`${response.now.tmp}°`)
+                $('.time').html(`${time.toLocaleTimeString()}发布`)
+                $('.theWeather').html(`${response.now.cond.txt}`)
+                $('.aqi').html(`空气质量指数  ${response.aqi.city.aqi}`)
+                $('.qlit').html(`空气质量  ${response.aqi.city.qlty}`)
+                $('.pm25').html(`PM2.5  ${response.aqi.city.pm25}`)
+                $('.today .how').html(`${response.daily_forecast[0].cond.txt_d}`)
+                $('.today .max-min').html(`${response.daily_forecast[0].tmp.min}°/${response.daily_forecast[0].tmp.max}°`)
+                $('.second-day .how').html(`${response.daily_forecast[1].cond.txt_d}`)
+                $('.second-day .max-min').html(`${response.daily_forecast[1].tmp.min}°/${response.daily_forecast[1].tmp.max}°`)
+                $('.third-day .how').html(`${response.daily_forecast[2].cond.txt_d}`)
+                $('.third-day .max-min').html(`${response.daily_forecast[2].tmp.min}°/${response.daily_forecast[2].tmp.max}°`)
+                $('.icon').attr('src', `${img[response.now.cond.code]}`)
+                $('.today-icon').attr('src', `${img[response.daily_forecast[0].cond.code_d]}`)
+                $('.secondDay-icon').attr('src', `${img[response.daily_forecast[1].cond.code_d]}`)
+                $('.thirdDay-icon').attr('src', `${img[response.daily_forecast[2].cond.code_d]}`)
+            }
+            var city = remote_ip_info.city
+            url = `https://free-api.heweather.com/v5/weather?city=${city}&key=d13eb3f46ebc456687c9868837b407ef&callback=responseHandler`
+            getResponse(url, handleResponse)
+        }
+        open()
+    }
+    </script>
+</body>
+
+</html>
