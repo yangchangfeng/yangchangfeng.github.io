@@ -6,6 +6,14 @@
     <title>weather prediction</title>
     <link rel="stylesheet" href="./balloon.css">
     <style>
+    body {
+        min-width: 660px;
+    }
+
+    #weather-app {
+        background-image: url(./sun.jpg);
+    }
+
     header>div {
         display: inline-block;
     }
@@ -18,11 +26,13 @@
         display: block;
         margin: auto;
     }
-    li{
-    	list-style: none;
+
+    li {
+        list-style: none;
     }
+
     #today {
-        width: 200px;
+        width: 160px;
     }
 
     #tmp-cond {
@@ -31,7 +41,7 @@
 
     #tomorrow,
     #after {
-        width: 150px;
+        width: 120px;
     }
 
     #tmp-cond span {
@@ -57,7 +67,7 @@
                 <img :src=today_pic alt="">
                 <div id='tmp-cond'>
                     <span style="font-size: 48px">
-                	{{nowTmp}}
+                    {{nowTmp}}
                     </span>
                     <span>
                       <i>℃</i>
@@ -85,19 +95,33 @@
                 <p>{{after_cond}}</p>
                 <p>{{after_wind}}</p>
             </div>
+            <div id='fourth'>
+                <p>{{fourth_weekday}}</p>
+                <p>{{fourth_is}}</p>
+                <img :src=fourth_pic alt="">
+                <p>{{fourth_tmp_min_max}}</p>
+                <p>{{fourth_cond}}</p>
+                <p>{{fourth_wind}}</p>
+            </div>
+            <div id='fifth'>
+                <p>{{fifth_weekday}}</p>
+                <p>{{fifth_is}}</p>
+                <img :src=fifth_pic alt="">
+                <p>{{fifth_tmp_min_max}}</p>
+                <p>{{fifth_cond}}</p>
+                <p>{{fifth_wind}}</p>
+            </div>
         </header>
         <main>
             <div id='suggestion'>
                 <ul>
-                    <li :data-balloon=sug.air.txt data-balloon-pos='down' data-balloon-length="fit">空气：{{sug.air.brf}}</li>
-                    <li :data-balloon=sug.comf.txt data-balloon-pos='down' data-balloon-length="fit">舒适度：{{sug.comf.brf}}</li>
                     <li :data-balloon=sug.cw.txt data-balloon-pos='down' data-balloon-length="fit">洗车：{{sug.cw.brf}}</li>
                     <li :data-balloon=sug.drsg.txt data-balloon-pos='down' data-balloon-length="fit">穿衣：{{sug.drsg.brf}}</li>
+                    <li :data-balloon=sug.comf.txt data-balloon-pos='down' data-balloon-length="fit">舒适度：{{sug.comf.brf}}</li>
                 </ul>
                 <ul>
                     <li :data-balloon=sug.flu.txt data-balloon-pos='down' data-balloon-length="fit">感冒：{{sug.flu.brf}}</li>
                     <li :data-balloon=sug.sport.txt data-balloon-pos='down' data-balloon-length="fit">运动：{{sug.sport.brf}}</li>
-                    <li :data-balloon=sug.trav.txt data-balloon-pos='down' data-balloon-length="fit">旅游：{{sug.trav.brf}}</li>
                     <li :data-balloon=sug.uv.txt data-balloon-pos='down' data-balloon-length="fit">紫外线强度：{{sug.uv.brf}}</li>
                 </ul>
             </div>
@@ -106,6 +130,7 @@
             <span>10~22温度</span>
             <span>相关指数</span>
             <span>切换城市</span>
+            <input v-model='newCity' @keyup.enter='sumbit(newCity)'>
         </footer>
     </div>
     <img src="./example.png" alt="" style="height:300px;">
@@ -113,52 +138,87 @@
 <script src='./vue.js'></script>
 <script src='https://pv.sohu.com/cityjson'></script>
 <script>
-window.onload = function start() {
-    //returnCitySN {cip: "122.234.67.237", cid: "330100", cname: "浙江省杭州市"}
-    console.log(returnCitySN)
-    var myIp = returnCitySN.cip //获取当前电脑所在地址ip地址
-    //我的key只有三天数据 267e2876097b40f5a4fed2b53b4d260b
-    //别人的881fb039c6954d73a86182bd6229f301 7天数据
-    var url = `https://free-api.heweather.com/v5/weather?city=${myIp}&key=881fb039c6954d73a86182bd6229f301`
-
+window.onload = function start(e,a_a) {
+    console.log(a_a)
+    var url
+    if (a_a) {
+        url = a_a
+    } else {
+        //returnCitySN {cip: "122.234.67.237", cid: "330100", cname: "浙江省杭州市"}
+        console.log(returnCitySN)
+        var myIp = returnCitySN.cip //获取当前电脑所在地址ip地址
+        //我的key只有三天数据 267e2876097b40f5a4fed2b53b4d260b
+        //别人的881fb039c6954d73a86182bd6229f301 7天数据
+        url = `https://free-api.heweather.com/v5/weather?city=${myIp}&key=881fb039c6954d73a86182bd6229f301`
+    }
+    console.log(1)
     function getResponse(url, callback) {
+        console.log(2)
         var req = new XMLHttpRequest()
         req.open('GET', url)
+        req.send()
         req.onload = function() {
             var result = JSON.parse(req.responseText)
-            console.log(result.HeWeather5[0])
+            console.log(result)
             callback(result.HeWeather5[0])
         }
-        req.send()
     }
-
     function handleResponse(data) {
-        console.log(data)
-        console.log(data.suggestion)
+        console.log(3,data)
+        app=null
         var app = new Vue({
             el: '#weather-app',
             data: {
                 city: data.basic.city,
-                airQuality: data.aqi.city.qlty,
+                newCity: '',
                 today_pic: `https://cdn.heweather.com/cond_icon/${data.now.cond.code}.png`,
                 tomorrow_pic: `https://cdn.heweather.com/cond_icon/${data.daily_forecast[1].cond.code_d}.png`,
                 after_pic: `https://cdn.heweather.com/cond_icon/${data.daily_forecast[2].cond.code_d}.png`,
+                fourth_pic: `https://cdn.heweather.com/cond_icon/${data.daily_forecast[3].cond.code_d}.png`,
+                fifth_pic: `https://cdn.heweather.com/cond_icon/${data.daily_forecast[4].cond.code_d}.png`,
+
                 nowTmp: data.now.tmp,
+
                 nowCond: data.now.cond.txt,
-                tomorrow_cond: data.daily_forecast[0].cond.txt_d,
-                after_cond: data.daily_forecast[1].cond.txt_d,
+                tomorrow_cond: data.daily_forecast[1].cond.txt_d,
+                after_cond: data.daily_forecast[2].cond.txt_d,
+                fourth_cond: data.daily_forecast[3].cond.txt_d,
+                fifth_cond: data.daily_forecast[4].cond.txt_d,
+
                 today_tmp_min_max: data.daily_forecast[0].tmp.min + '~' + data.daily_forecast[0].tmp.max + '℃',
                 tomorrow_tmp_min_max: data.daily_forecast[1].tmp.min + '~' + data.daily_forecast[1].tmp.max + '℃',
                 after_tmp_min_max: data.daily_forecast[2].tmp.min + '~' + data.daily_forecast[2].tmp.max + '℃',
-                today_wind: data.daily_forecast[0].wind.dir + data.daily_forecast[0].wind.sc,
-                tomorrow_wind: data.daily_forecast[1].wind.dir + data.daily_forecast[1].wind.sc,
-                after_wind: data.daily_forecast[2].wind.dir + data.daily_forecast[2].wind.sc,
-                sug:data.suggestion,
+                fourth_tmp_min_max: data.daily_forecast[3].tmp.min + '~' + data.daily_forecast[2].tmp.max + '℃',
+                fifth_tmp_min_max: data.daily_forecast[4].tmp.min + '~' + data.daily_forecast[2].tmp.max + '℃',
+
+                today_wind: data.daily_forecast[0].wind.dir + '-' + data.daily_forecast[0].wind.sc,
+                tomorrow_wind: data.daily_forecast[1].wind.dir + '-' + data.daily_forecast[1].wind.sc,
+                after_wind: data.daily_forecast[2].wind.dir + '-' + data.daily_forecast[2].wind.sc,
+                fourth_wind: data.daily_forecast[3].wind.dir + '-' + data.daily_forecast[2].wind.sc,
+                fifth_wind: data.daily_forecast[4].wind.dir + '-' + data.daily_forecast[2].wind.sc,
+
+
+                sug: data.suggestion,
                 number: (new Date).getDay(),
                 weekday: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
-         
+
             },
+            beforeCreate:function(){
+                console.log(111,this)
+            },
+            // watch:{
+            //     newCity:function(newvalue,old){
+            //         console.log('newvalue',newvalue,'old',old)
+            //     }
+            // },
             computed: {
+                airQuality: function() {
+                    if (data.aqi) {
+                        return data.aqi.city.qlty
+                    } else {
+                        return this.sug.air.brf
+                    }
+                },
                 today_weekday: function() {
                     return this.weekday[this.number]
                 },
@@ -166,6 +226,12 @@ window.onload = function start() {
                     return this.weekday[(this.number + 1) % 6]
                 },
                 after_weekday: function() {
+                    return this.weekday[(this.number + 2) % 6]
+                },
+                fourth_weekday: function() {
+                    return this.weekday[(this.number + 2) % 6]
+                },
+                fifth_weekday: function() {
                     return this.weekday[(this.number + 2) % 6]
                 },
                 today_is: function() {
@@ -176,11 +242,26 @@ window.onload = function start() {
                 },
                 after_is: function() {
                     return data.daily_forecast[2].date.split('').slice(5).join('')
+                },
+                fourth_is: function() {
+                    return data.daily_forecast[3].date.split('').slice(5).join('')
+                },
+                fifth_is: function() {
+                    return data.daily_forecast[4].date.split('').slice(5).join('')
+                },
+            },
+            methods: {
+                sumbit: function(newCity) {
+                    let newUrl = `https://free-api.heweather.com/v5/weather?city=${newCity}&key=881fb039c6954d73a86182bd6229f301`
+                    console.log(newCity)
+                    start(e,newUrl)
                 }
-            }
+            },
         })
+        console.log(5)
     }
     getResponse(url, handleResponse)
+    console.log(4)
 }
 </script>
 
