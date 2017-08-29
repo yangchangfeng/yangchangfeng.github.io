@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>weather prediction</title>
+    <link rel="stylesheet" href="./balloon.css">
+    <style>
+    body {
+        min-width: 660px;
+    }
+
+    #weather-app {
+        background-image: url(http://files.57gif.com/webgif/0/0/04/d7b9e9a3680001d0d1b32145720f6.gif);
+        background-size: 100% 100%;
+    }
+
+    header>div {
+        display: inline-block;
+    }
+
+    header p {
+        text-align: center;
+    }
+
+    header img {
+        display: block;
+        margin: auto;
+    }
+
+    li {
+        list-style: none;
+    }
+
+    #today {
+        width: 160px;
+    }
+
+    #tmp-cond {
+        text-align: center;
+    }
+
+    #tomorrow,
+    #after {
+        width: 120px;
+    }
+
+    #tmp-cond span {
+        display: inline-block;
+    }
+
+    #tmp-cond span i {
+        display: block
+    }
+
+    #suggestion>* {
+        display: inline-block;
+        margin-left: 20px;
+    }
+    </style>
+</head>
+
+<body>
+    <div id='weather-app'>
+        <header>
+            <div id='today'>
+                <p>{{city}}{{when.today}}{{today_weekday}}</p>
+                <p>{{'空气质量：'+airQuality}}</p>
+                <img :src=pic.today alt="">
+                <div id='tmp-cond'>
+                    <span style="font-size: 48px">
+                    {{nowTmp}}
+                    </span>
+                    <span>
+                      <i>℃</i>
+                      <i>{{cond.now}}</i>
+                    </span>
+                </div>
+                <section>
+                    <p>{{tmpWave.today}}</p>
+                    <p>{{wind.today}}</p>
+                </section>
+            </div>
+            <div id='tomorrow'>
+                <p>{{tomorrow_weekday}}</p>
+                <p>{{when.tomorrow}}</p>
+                <img :src=pic.tomorrow alt="">
+                <p>{{tmpWave.tomorrow}}</p>
+                <p>{{cond.tomorrow}}</p>
+                <p>{{wind.tomorrow}}</p>
+            </div>
+            <div id='after'>
+                <p>{{after_weekday}}</p>
+                <p>{{when.after}}</p>
+                <img :src=pic.after alt="">
+                <p>{{tmpWave.after}}</p>
+                <p>{{cond.after}}</p>
+                <p>{{wind.after}}</p>
+            </div>
+            <div id='fourth'>
+                <p>{{fourth_weekday}}</p>
+                <p>{{when.fourth}}</p>
+                <img :src=pic.fourth alt="">
+                <p>{{tmpWave.fourth}}</p>
+                <p>{{cond.fourth}}</p>
+                <p>{{wind.fourth}}</p>
+            </div>
+            <div id='fifth'>
+                <p>{{fifth_weekday}}</p>
+                <p>{{when.fifth}}</p>
+                <img :src=pic.fifth alt="">
+                <p>{{tmpWave.fifth}}</p>
+                <p>{{cond.fifth}}</p>
+                <p>{{wind.fifth}}</p>
+            </div>
+        </header>
+        <main>
+            <div id='suggestion'>
+                <ul>
+                    <li :data-balloon=sug.cw.txt data-balloon-pos='down' data-balloon-length="fit">洗车：{{sug.cw.brf}}</li>
+                    <li :data-balloon=sug.drsg.txt data-balloon-pos='down' data-balloon-length="fit">穿衣：{{sug.drsg.brf}}</li>
+                    <li :data-balloon=sug.comf.txt data-balloon-pos='down' data-balloon-length="fit">舒适度：{{sug.comf.brf}}</li>
+                </ul>
+                <ul>
+                    <li :data-balloon=sug.flu.txt data-balloon-pos='down' data-balloon-length="fit">感冒：{{sug.flu.brf}}</li>
+                    <li :data-balloon=sug.sport.txt data-balloon-pos='down' data-balloon-length="fit">运动：{{sug.sport.brf}}</li>
+                    <li :data-balloon=sug.uv.txt data-balloon-pos='down' data-balloon-length="fit">紫外线强度：{{sug.uv.brf}}</li>
+                </ul>
+                <div>
+                <span data-balloon='按enter键开始切换' data-balloon-pos='up' data-balloon-length="fit">切换城市</span>
+                <input @keyup.enter="changCity" ref='input' style='width:60px;height:24px;'>
+                </div>
+            </div>
+        </main>
+    </div>
+    <img src="./example.png" alt="" style="height:300px;">
+</body>
+<script src='./vue.js'></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+function autoLoca(url, getback) {
+    return new Promise(resolve => {
+        let script = document.createElement('script')
+        script.onload = function() {
+            resolve(window[getback])
+        }
+        script.src = url
+        document.body.appendChild(script)
+    })
+}
+
+function urlForWeather(city) {
+    return `https://free-api.heweather.com/v5/weather?city=${city}&key=881fb039c6954d73a86182bd6229f301`
+}
+var app = new Vue({
+    el: '#weather-app',
+    data: {
+        city: '',
+        searchcity:'',
+        weather: {},
+        // sug: data.suggestion,
+        number: (new Date).getDay(),
+        weekday: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
+
+
+    },
+    mounted() {
+        this.autoLocate();
+    },
+    watch: {
+        city: function(newcity) {
+            this.getWeather(newcity)
+        }
+    },
+    computed: {
+        nowTmp() {
+            if (this.weather.now) {
+                return this.weather.now.tmp
+            }
+        },
+        sug() {
+            if(this.weather.now){
+            return this.weather.suggestion                
+            }else{
+                return {
+                    cw:{},
+                    drsg:{},
+                    comf:{},
+                    flu:{},
+                    sport:{},
+                    uv:{},
+                }
+            }
+        },
+        airQuality: function() {
+            if (this.weather.now) {
+                if (this.weather.aqi) {
+                    return this.weather.aqi.city.qlty
+                } else {
+                    return this.sug.air.brf
+                }
+            }
+        },
+        today_weekday: function() {
+            return this.weekday[this.number]
+        },
+        tomorrow_weekday: function() {
+            return this.weekday[(this.number + 1) % 7]
+        },
+        after_weekday: function() {
+            return this.weekday[(this.number + 2) % 7]
+        },
+        fourth_weekday: function() {
+            return this.weekday[(this.number + 3) % 7]
+        },
+        fifth_weekday: function() {
+            return this.weekday[(this.number + 4) % 7]
+        },
+        when() {
+            let data = this.weather
+            if (data.now) {
+                return {
+                    today: data.daily_forecast[0].date.split('').slice(5).join(''),
+                    tomorrow: data.daily_forecast[1].date.split('').slice(5).join(''),
+                    after: data.daily_forecast[2].date.split('').slice(5).join(''),
+                    fourth: data.daily_forecast[3].date.split('').slice(5).join(''),
+                    fifth: data.daily_forecast[4].date.split('').slice(5).join(''),
+                }
+            } else return {}
+        },
+        pic() {
+            let before = 'https://cdn.heweather.com/cond_icon/'
+            let t = '.png'
+            let data = this.weather
+            if (data.now) {
+                return {
+                    today: before + data.now.cond.code + t,
+                    tomorrow: before + data.daily_forecast[1].cond.code_d + t,
+                    after: before + data.daily_forecast[2].cond.code_d + t,
+                    fourth: before + data.daily_forecast[3].cond.code_d + t,
+                    fifth: before + data.daily_forecast[4].cond.code_d + t,
+
+                }
+            } else return {}
+        },
+        cond() {
+            let data = this.weather
+            if (data.now) {
+                return {
+                    today: data.now.cond.txt,
+                    tomorrow: data.daily_forecast[1].cond.txt_d,
+                    after: data.daily_forecast[2].cond.txt_d,
+                    fourth: data.daily_forecast[3].cond.txt_d,
+                    fifth: data.daily_forecast[4].cond.txt_d,
+                }
+            } else return {}
+        },
+        tmpWave() {
+            let data = this.weather
+            if (data.now) {
+                return {
+                    today: data.daily_forecast[0].tmp.min + '~' + data.daily_forecast[0].tmp.max + '℃',
+                    tomorrow: data.daily_forecast[1].tmp.min + '~' + data.daily_forecast[1].tmp.max + '℃',
+                    after: data.daily_forecast[2].tmp.min + '~' + data.daily_forecast[2].tmp.max + '℃',
+                    fourth: data.daily_forecast[3].tmp.min + '~' + data.daily_forecast[2].tmp.max + '℃',
+                    fifth: data.daily_forecast[4].tmp.min + '~' + data.daily_forecast[2].tmp.max + '℃',
+                }
+            } else return {}
+        },
+        wind() {
+            let data = this.weather
+            if (data.now) {
+                return {
+                    today: data.daily_forecast[0].wind.dir + '-' + data.daily_forecast[0].wind.sc,
+                    tomorrow: data.daily_forecast[1].wind.dir + '-' + data.daily_forecast[1].wind.sc,
+                    after: data.daily_forecast[2].wind.dir + '-' + data.daily_forecast[2].wind.sc,
+                    fourth: data.daily_forecast[3].wind.dir + '-' + data.daily_forecast[2].wind.sc,
+                    fifth: data.daily_forecast[4].wind.dir + '-' + data.daily_forecast[2].wind.sc,
+                }
+            } else return {}
+        }
+    },
+    methods: {
+        changCity(){
+           this.searchcity=app.$refs.input.value.trim()
+           this.getWeather(this.searchcity)
+        },
+        autoLocate() {
+            autoLoca("http://int.dpool.sina.com.cn/iplookup/iplookup.php?format=js",
+                'remote_ip_info').then(resolve => {
+                this.city = resolve.city
+            })
+        },
+        getWeather(city) {
+            let url = urlForWeather(city)
+            axios.get(url)
+                .then(resolve => {
+                    console.log(resolve)
+                    if(resolve.data.HeWeather5[0].status=='ok'){
+                    this.city=city
+                    this.weather = resolve.data.HeWeather5[0]
+                    }else{
+                        app.$refs.input.value='未知城市'
+                    }
+                })
+                .catch(error => {
+                    console.log(error)
+                })
+        },
+    },
+})
+
+</script>
+
+</html>
