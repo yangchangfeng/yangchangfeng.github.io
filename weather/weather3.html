@@ -6,6 +6,9 @@
     <title>weather prediction</title>
     <link rel="stylesheet" href="./balloon.css">
     <style>
+    [v-cloak]{
+        display: none;
+    }
     body {
         min-width: 660px;
         color:white;
@@ -142,7 +145,7 @@
 </head>
 
 <body>
-    <div id='weather-app' v-bind:class="bgcPicObject">
+    <div id='weather-app' v-bind:class="bgcPicObject" v-cloak>
         <header>
             <div id='today'>
                 <p style='font-size:25px'>{{city}} {{when.today}} {{today_weekday}}</p>
