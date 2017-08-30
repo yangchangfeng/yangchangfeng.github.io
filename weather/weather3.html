@@ -8,16 +8,25 @@
     <style>
     body {
         min-width: 660px;
+        color:white;
+        font-weight:500;
+        text-shadow: 0 0 10px black;
     }
 
     #weather-app {
-        background-image: url(http://files.57gif.com/webgif/2/f/b6/c21ea2ed5f0ea5120faf677122ff0.gif);
-        background-size: 100% 100%;
-        width:668px;
+        position:relative;
+        height:403px;
+        width: 600px;
+        margin-top: 80px;
+        margin-left:80px;
     }
-
+    
+    header{
+        overflow: hidden;
+    }
     header>div {
         display: inline-block;
+        float:left;
     }
 
     header p {
@@ -27,17 +36,20 @@
     header img {
         display: block;
         margin: auto;
+        height: 80px;
     }
 
     li {
         list-style: none;
     }
-    p{
-        margin-top:10px;
-        margin-bottom:10px;
+
+    p {
+        margin-top: 10px;
+        margin-bottom: 10px;
     }
+
     #today {
-        width: 160px;
+        width: 200px;
     }
 
     #tmp-cond {
@@ -45,8 +57,12 @@
     }
 
     #tomorrow,
-    #after,#fourth,#fifth {
-        width: 120px;
+    #after,
+    #fourth,
+    #fifth {
+      /*  margin-top:32px;*/
+        width: 100px;
+        height:308px;
     }
 
     #tmp-cond span {
@@ -56,27 +72,80 @@
     #tmp-cond span i {
         display: block
     }
-
-    #suggestion>* {
+    #suggestion {
+        position: relative;
+    }
+    #suggestion>ul {
         display: inline-block;
         margin-left: 20px;
     }
-    #tomorrow::before,#after::before,#fourth::before,#fifth::before{
-        content:'';
-        display: block;
+    #citybutton{
         position:absolute;
-        top:50px;
-        height: 255px;
+        right:0px;
+        bottom:0px;
+
+    }
+    #tomorrow::before,
+    #after::before,
+    #fourth::before,
+    #fifth::before {
+        content: '';
+        display: block;
+        position: absolute;
+        top: 50px;
+        height: 224px;
         border: 1px solid #b0b0b0;
+    }
+    .sun {
+        background-image: url(./sun.gif);
+        background-size: 100% 100%;
+    }
+
+    .cloudy {
+        background-image: url(./cloudy.gif);
+        background-size: 100% 100%;
+    }
+
+    .windy {
+        background-image: url(./windy.gif);
+        background-size: 100% 110%;
+    }
+
+    .tornado {
+        background-image: url(./tornado.gif);
+        background-size: 100% 100%;
+    }
+
+    .rain {
+        background-image: url(./rain.gif);
+        background-size: 100% 100%;
+    }
+
+    .rainstorm {
+        background-image: url(./rainstorm.gif);
+        background-size: 100% 100%;
+    }
+
+    .snow {
+        background-image: url(./snow.gif);
+        background-size: 100% 100%;
+    }
+
+    .fog {
+        background-image: url(./fog.gif);
+        background-size: 100% 100%;
+    }
+    #tomorrow:hover,#after:hover,#fourth:hover,#fifth:hover{
+      background-color:rgba(255,255,255,0.2);
     }
     </style>
 </head>
 
 <body>
-    <div id='weather-app'>
+    <div id='weather-app' v-bind:class="bgcPicObject">
         <header>
             <div id='today'>
-                <p>{{city}}{{when.today}}{{today_weekday}}</p>
+                <p style='font-size:25px'>{{city}} {{when.today}} {{today_weekday}}</p>
                 <p>{{'空气质量：'+airQuality}}</p>
                 <img :src=pic.today alt="">
                 <div id='tmp-cond'>
@@ -93,33 +162,32 @@
                     <p>{{wind.today}}</p>
                 </section>
             </div>
-            <span class='isolate'></span>
-            <div id='tomorrow'>
-                <p>{{tomorrow_weekday}}</p>
+            <div id='tomorrow' v-on:mouseenter='changePic' v-on:mouseleave='backPic'>
+                <p style='margin-top:42px'>{{tomorrow_weekday}}</p>
                 <p>{{when.tomorrow}}</p>
-                <img :src=pic.tomorrow alt="">
+                <img :src=pic.tomorrow>
                 <p>{{tmpWave.tomorrow}}</p>
                 <p>{{cond.tomorrow}}</p>
                 <p>{{wind.tomorrow}}</p>
             </div>
-            <div id='after'>
-                <p>{{after_weekday}}</p>
+            <div id='after' v-on:mouseenter='changePic' v-on:mouseleave='backPic'>
+                <p style='margin-top:42px'>{{after_weekday}}</p>
                 <p>{{when.after}}</p>
                 <img :src=pic.after alt="">
                 <p>{{tmpWave.after}}</p>
                 <p>{{cond.after}}</p>
                 <p>{{wind.after}}</p>
             </div>
-            <div id='fourth'>
-                <p>{{fourth_weekday}}</p>
+            <div id='fourth' v-on:mouseenter='changePic' v-on:mouseleave='backPic'>
+                <p style='margin-top:42px'>{{fourth_weekday}}</p>
                 <p>{{when.fourth}}</p>
                 <img :src=pic.fourth alt="">
                 <p>{{tmpWave.fourth}}</p>
                 <p>{{cond.fourth}}</p>
                 <p>{{wind.fourth}}</p>
             </div>
-            <div id='fifth'>
-                <p>{{fifth_weekday}}</p>
+            <div id='fifth' v-on:mouseenter='changePic' v-on:mouseleave='backPic'>
+                <p style='margin-top:42px'>{{fifth_weekday}}</p>
                 <p>{{when.fifth}}</p>
                 <img :src=pic.fifth alt="">
                 <p>{{tmpWave.fifth}}</p>
@@ -139,16 +207,15 @@
                     <li :data-balloon=sug.sport.txt data-balloon-pos='down' data-balloon-length="large">运动：{{sug.sport.brf}}</li>
                     <li :data-balloon=sug.uv.txt data-balloon-pos='down' data-balloon-length="large">紫外线强度：{{sug.uv.brf}}</li>
                 </ul>
-                <div>
-                <span data-balloon='按enter键开始切换' data-balloon-pos='up' data-balloon-length="fit">切换城市</span>
-                <input @keyup.enter="changCity" ref='input' style='width:60px;height:24px;'>
+                <div id='citybutton'>
+                    <span data-balloon='按enter键开始切换' data-balloon-pos='up' data-balloon-length="fit">切换城市</span>
+                    <input @keyup.enter="changCity" ref='input' style='width:60px;height:24px;'>
                 </div>
             </div>
         </main>
     </div>
 </body>
 <script src='./vue.js'></script>
-<script scr='./jquery-3.2.1.js'></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script>
 function autoLoca(url, getback) {
@@ -165,17 +232,101 @@ function autoLoca(url, getback) {
 function urlForWeather(city) {
     return `https://free-api.heweather.com/v5/weather?city=${city}&key=881fb039c6954d73a86182bd6229f301`
 }
+
+function codeToPic(str) {
+    var sumple = {
+        100: 'sun',
+        102: 'sun',
+        103: 'sun',
+        201: 'sun',
+        900: 'sun',
+
+        101: 'cloudy',
+        104: 'cloudy',
+        901: 'cloudy',
+        909: 'cloudy',
+
+        200: 'windy',
+        202: 'windy',
+        203: 'windy',
+        204: 'windy',
+        205: 'windy',
+
+        206: 'tornado',
+        207: 'tornado',
+        208: 'tornado',
+        209: 'tornado',
+        210: 'tornado',
+        211: 'tornado',
+        212: 'tornado',
+        213: 'tornado',
+
+        300: 'rain',
+        305: 'rain',
+        306: 'rain',
+        309: 'rain',
+        313: 'rain',
+
+        301: 'rainstorm',
+        302: 'rainstorm',
+        303: 'rainstorm',
+        304: 'rainstorm',
+        307: 'rainstorm',
+        308: 'rainstorm',
+        310: 'rainstorm',
+        311: 'rainstorm',
+        312: 'rainstorm',
+
+        400: 'snow',
+        401: 'snow',
+        402: 'snow',
+        403: 'snow',
+        404: 'snow',
+        405: 'snow',
+        406: 'snow',
+        407: 'snow',
+
+        500: 'fog',
+        501: 'fog',
+        502: 'fog',
+        503: 'fog',
+        504: 'fog',
+        505: 'fog',
+        506: 'fog',
+        507: 'fog',
+        508: 'fog',
+    }
+    return sumple[str]
+}
+
+function allfalse(obj) {
+    var ary = Object.keys(obj)
+    ary.forEach(it => {
+        obj[it] = false
+    })
+}
+
 var app = new Vue({
     el: '#weather-app',
     data: {
         city: '',
-        searchcity:'',
+        searchcity: '',
         weather: {},
         // sug: data.suggestion,
         number: (new Date).getDay(),
         weekday: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
-
-
+        todayBgc: true,
+        tomorrowBgc: false,
+        bgcPicObject: {
+            sun: false,
+            cloudy: false,
+            windy: false,
+            tornado: false,
+            rain: false,
+            rainstorm: false,
+            snow: false,
+            fog: false,
+        }
     },
     mounted() {
         this.autoLocate();
@@ -192,16 +343,16 @@ var app = new Vue({
             }
         },
         sug() {
-            if(this.weather.now){
-            return this.weather.suggestion                
-            }else{
+            if (this.weather.now) {
+                return this.weather.suggestion
+            } else {
                 return {
-                    cw:{},
-                    drsg:{},
-                    comf:{},
-                    flu:{},
-                    sport:{},
-                    uv:{},
+                    cw: {},
+                    drsg: {},
+                    comf: {},
+                    flu: {},
+                    sport: {},
+                    uv: {},
                 }
             }
         },
@@ -294,9 +445,30 @@ var app = new Vue({
         }
     },
     methods: {
-        changCity(){
-           this.searchcity=app.$refs.input.value.trim()
-           this.getWeather(this.searchcity)
+        changePic(event) {
+            if (event.target.id == 'tomorrow') {
+                this.helperForchangePic(1)
+            } else if (event.target.id == 'after') {
+                this.helperForchangePic(2)
+            } else if (event.target.id == 'fourth') {
+                this.helperForchangePic(3)
+            } else {
+                this.helperForchangePic(4)
+            }
+        },
+        backPic() {
+            let bgcpic = codeToPic(this.weather.now.cond.code)
+            allfalse(this.bgcPicObject)
+            this.bgcPicObject[bgcpic] = true
+        },
+        helperForchangePic(time) {
+            let bgcpic = codeToPic(this.weather.daily_forecast[time].cond.code_d)
+            allfalse(this.bgcPicObject)
+            this.bgcPicObject[bgcpic] = true
+        },
+        changCity() {
+            this.searchcity = app.$refs.input.value.trim()
+            this.getWeather(this.searchcity)
         },
         autoLocate() {
             autoLoca("http://int.dpool.sina.com.cn/iplookup/iplookup.php?format=js",
@@ -309,11 +481,15 @@ var app = new Vue({
             axios.get(url)
                 .then(resolve => {
                     console.log(resolve)
-                    if(resolve.data.HeWeather5[0].status=='ok'){
-                    this.city=city
-                    this.weather = resolve.data.HeWeather5[0]
-                    }else{
-                        app.$refs.input.value='未知城市'
+                    if (resolve.data.HeWeather5[0].status == 'ok') {
+                        this.city = city
+                        this.weather = resolve.data.HeWeather5[0]
+                        this.bgcPicObject
+                        let bgcpic = codeToPic(this.weather.now.cond.code)
+                        allfalse(this.bgcPicObject)
+                        this.bgcPicObject[bgcpic] = true
+                    } else {
+                        app.$refs.input.value = '未知城市'
                     }
                 })
                 .catch(error => {
@@ -322,7 +498,8 @@ var app = new Vue({
         },
     },
 })
-
+</script>
+<script>
 </script>
 
 </html>
