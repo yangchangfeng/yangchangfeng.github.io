@@ -231,15 +231,57 @@
 <script src='./vue.js'></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script>
-function autoLoca(url, getback) {
-    return new Promise(resolve => {
-        let script = document.createElement('script')
-        script.onload = function() {
-            resolve(window[getback])
+//https://ipinfo.io/json?callback=aaa
+//{
+//   "ip": "122.234.67.237",
+//   "city": "Hangzhou",
+//   "region": "Zhejiang",
+//   "country": "CN",
+//   "loc": "30.2936,120.1614",
+//   "org": "AS4134 CHINANET-BACKBONE"
+// }
+
+// function autoLoca(url, getback) {
+//     return new Promise(resolve => {
+//         let script = document.createElement('script')
+//         script.onload = function() {
+//             resolve(window[getback])
+//         }
+//         script.src = url
+//         document.body.appendChild(script)
+//     })
+// }
+
+function autoLoca(obj) {
+    console.log(obj)
+    app.getWeather(obj['ip'])
+}
+
+function jsonp(url, successCb) {
+    var cbName = '___JSONP_CALLBACK_$$__' + Date.now() + (Math.random() + '').substr(2)
+    window[cbName] = function(data) {
+        clearTimeout(timerid)
+        try {
+            successCb(data)
+        } finally {
+            delete window[cbName]
+            document.body.removeChild(script)
         }
-        script.src = url
-        document.body.appendChild(script)
-    })
+    }
+    //这里要注意 url上有没有query过就是 ？，这里没有
+    //即http://www.fasf.com/api?a=b
+    //这样的话下面就是 url=url+'&callback='
+    url = url + '?callback=' + cbName
+
+    var script = document.createElement('script')
+    script.src = url
+
+    var timerid = setTimeout(function() {
+        console.log('获取地理位置超时')
+        delete window[cbName]
+        document.body.removeChild(script)
+    }, 3e4)
+    document.body.append(script)
 }
 
 function urlForWeather(city) {
@@ -344,11 +386,11 @@ var app = new Vue({
     mounted() {
         this.autoLocate();
     },
-    watch: {
-        city: function(newcity) {
-            this.getWeather(newcity)
-        }
-    },
+    // watch: {
+    //     city: function(newcity) {
+    //         this.getWeather(newcity)
+    //     }
+    // },
     computed: {
         nowTmp() {
             if (this.weather.now) {
@@ -477,7 +519,7 @@ var app = new Vue({
             }
         },
         helperForchangePic(time) {
-            if (this.weather.daily_forecast[time]) {
+            if (this.weather.daily_forecast) {
                 let bgcpic = codeToPic(this.weather.daily_forecast[time].cond.code_d)
                 allfalse(this.bgcPicObject)
                 this.bgcPicObject[bgcpic] = true
@@ -488,10 +530,7 @@ var app = new Vue({
             this.getWeather(this.searchcity)
         },
         autoLocate() {
-            autoLoca("http://int.dpool.sina.com.cn/iplookup/iplookup.php?format=js",
-                'remote_ip_info').then(resolve => {
-                this.city = resolve.city
-            })
+            jsonp('https://ipinfo.io/json', autoLoca)
         },
         getWeather(city) {
             let url = urlForWeather(city)
@@ -499,8 +538,9 @@ var app = new Vue({
                 .then(resolve => {
                     console.log(resolve)
                     if (resolve.data.HeWeather5[0].status == 'ok') {
-                        this.city = city
                         this.weather = resolve.data.HeWeather5[0]
+                        console.log(resolve.data.HeWeather5[0])
+                        this.city = resolve.data.HeWeather5[0].basic.city
                         this.bgcPicObject
                         let bgcpic = codeToPic(this.weather.now.cond.code)
                         allfalse(this.bgcPicObject)
