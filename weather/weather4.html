@@ -21,7 +21,7 @@
         position: relative;
         height: 403px;
         width: 600px;
-        margin-top: 80px;
+        margin-top: 40px;
         margin-left: 80px;
     }
 
@@ -106,42 +106,42 @@
     }
 
     .sun {
-        background-image: url(./sun.gif);
+        background-image: url(./bgcPic/sun.gif);
         background-size: 100% 100%;
     }
 
     .cloudy {
-        background-image: url(./cloudy.gif);
+        background-image: url(./bgcPic/cloudy.gif);
         background-size: 100% 100%;
     }
 
     .windy {
-        background-image: url(./windy.gif);
+        background-image: url(./bgcPic/windy.gif);
         background-size: 100% 110%;
     }
 
     .tornado {
-        background-image: url(./tornado.gif);
+        background-image: url(./bgcPic/tornado.gif);
         background-size: 100% 100%;
     }
 
     .rain {
-        background-image: url(./rain.gif);
+        background-image: url(./bgcPic/rain.gif);
         background-size: 100% 100%;
     }
 
     .rainstorm {
-        background-image: url(./rainstorm.gif);
+        background-image: url(./bgcPic/rainstorm.gif);
         background-size: 100% 100%;
     }
 
     .snow {
-        background-image: url(./snow.gif);
+        background-image: url(./bgcPic/snow.gif);
         background-size: 100% 100%;
     }
 
     .fog {
-        background-image: url(./fog.gif);
+        background-image: url(./bgcPic/fog.gif);
         background-size: 100% 100%;
     }
 
@@ -151,14 +151,22 @@
     #fifth:hover {
         background-color: rgba(255, 255, 255, 0.2);
     }
+    h3{
+        margin-left:60px;
+        margin-top:40px;
+    }
+    .hidden{
+        visibility:hidden;
+    }
     </style>
 </head>
 
 <body>
+<h3 id='tooltip'>自动定位中，如定位太慢可手动在右下角输入城市名，按enter键开始查找</h2>
     <div id='weather-app' v-bind:class="bgcPicObject" v-cloak>
         <header>
             <div id='today'>
-                <p style='font-size:25px'>{{city}} {{when.today}} {{today_weekday}}</p>
+                <p style='font-size:21px'>{{city}} {{when.today}} {{today_weekday}}</p>
                 <p>{{'空气质量：'+airQuality}}</p>
                 <img :src=pic.today alt="">
                 <div id='tmp-cond'>
@@ -231,27 +239,6 @@
 <script src='./vue.js'></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script>
-//https://ipinfo.io/json?callback=aaa
-//{
-//   "ip": "122.234.67.237",
-//   "city": "Hangzhou",
-//   "region": "Zhejiang",
-//   "country": "CN",
-//   "loc": "30.2936,120.1614",
-//   "org": "AS4134 CHINANET-BACKBONE"
-// }
-
-// function autoLoca(url, getback) {
-//     return new Promise(resolve => {
-//         let script = document.createElement('script')
-//         script.onload = function() {
-//             resolve(window[getback])
-//         }
-//         script.src = url
-//         document.body.appendChild(script)
-//     })
-// }
-
 function autoLoca(obj) {
     console.log(obj)
     app.getWeather(obj['ip'])
@@ -367,7 +354,6 @@ var app = new Vue({
         city: '',
         searchcity: '',
         weather: {},
-        // sug: data.suggestion,
         number: (new Date).getDay(),
         weekday: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
         todayBgc: true,
@@ -386,11 +372,6 @@ var app = new Vue({
     mounted() {
         this.autoLocate();
     },
-    // watch: {
-    //     city: function(newcity) {
-    //         this.getWeather(newcity)
-    //     }
-    // },
     computed: {
         nowTmp() {
             if (this.weather.now) {
@@ -536,7 +517,6 @@ var app = new Vue({
             let url = urlForWeather(city)
             axios.get(url)
                 .then(resolve => {
-                    console.log(resolve)
                     if (resolve.data.HeWeather5[0].status == 'ok') {
                         this.weather = resolve.data.HeWeather5[0]
                         console.log(resolve.data.HeWeather5[0])
@@ -549,6 +529,7 @@ var app = new Vue({
                         app.$refs.input.value = '未知城市'
                     }
                 })
+                .then(resolve=>{tooltip.classList.add('hidden')})
                 .catch(error => {
                     console.log(error)
                 })
