@@ -1229,7 +1229,7 @@ var diaozhatian_shiwo = {
     //大名鼎鼎的reduce
     reduce: function(col, ite, acc) {
         //没给初始值
-        if (!acc) {
+        if (acc === undefined) {
             var ary = Object.keys(col)
             var t = ary.shift()
             var acc = col[t]
@@ -1246,6 +1246,21 @@ var diaozhatian_shiwo = {
         }
         return acc
     },
+    // function myreduce(ary, callback, initvalue) {
+    //     if (initvalue === undefined) {
+    //         var acc = ary[0]
+    //         for (let i = 1; i < ary.length; i++) {
+    //             acc = callback(acc, ary[i], i, ary)
+    //         }
+    //     }else{
+    //         acc=initvalue
+    //         for(let i=0;i<ary.length;i++){
+    //             acc=callback(acc,ary[i],i,ary)
+    //         }
+
+    //     }
+    //     return acc
+    // }
 
     //This method is like _.reduce except that it iterates over elements of collection from right to left.
     //只有col是数组时reverse一下，对象本来就不能保证顺序
@@ -1381,7 +1396,27 @@ var diaozhatian_shiwo = {
     },
 
     delay: function(f, wait, ...args) {
-        return setTimeout(f.apply(null, args), wait) - 1
+        return setTimeout(function() { f(...args) }, wait)
+    },
+    debounce: function(fn, delay) {
+        var timerId
+        var context = this
+        return function(...args) {
+            clearTimeout(timerId)
+            timerId = setTimeout(fn.bind(context, ...args), delay)
+        }
+    },
+    throttle: function(fn, gap) {
+        var lastRunTime = -Infinity //第一次发生
+        // var lastRunTime=Date.now() 第一次不发生
+        var context = this
+        return function(...args) {
+            var now = Date.now()
+            if (now - lastRunTime > gap) {
+                fn.apply(context, args)
+                lastRunTime = now
+            }
+        }
     },
 
     /**
