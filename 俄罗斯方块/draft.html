@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <p style='text-align:center'>
+        <img width='100px' src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2WhOti17crdhQ5YaH0tWnaPwy-EL7rVEWpyH_VABFAmjfA8mZKA" style="position:relative">
+    </p>
+</body>
+<script>
+var cat = document.querySelector('img');
+var angle = 0,
+    lastTime = null;
+
+function animate(time) {
+    //console.log(time)
+    if (lastTime != null)
+        angle += (time - lastTime) * 0.001;
+    lastTime = time;
+    cat.style.top = (Math.sin(angle) * 20) + 'px';
+    cat.style.left = (Math.cos(angle) * 200) + 'px';
+    requestAnimationFrame(animate);
+}
+requestAnimationFrame(animate);
+
+function aaa() {
+    addEventListener("keydown", function() {
+        console.log(event.keyCode)
+    })
+}
+
+aaa()
+</script>
+
+</html>

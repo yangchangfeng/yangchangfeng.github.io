@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>俄罗斯方块</title>
+    <style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    .matrix {
+        position: relative;
+        left: 120px;
+        top: 80px;
+        background: #9ead86;
+        max-width: 500px;
+    }
+
+    .matrix p {
+        width: 220px;
+        height: 22px;
+    }
+
+    b,
+    b:after {
+        display: block;
+    }
+
+    b.c {
+        border-color: #000;
+    }
+
+    b.c:after {
+        background: #000;
+    }
+
+    b {
+        width: 20px;
+        height: 20px;
+        padding: 2px;
+        border: 2px solid rgba(0, 0, 0, .15);
+        margin: 0 2px 2px 0;
+        float: left;
+    }
+
+    b:after {
+        content: "";
+        width: 12px;
+        height: 12px;
+        background: #879372;
+        overflow: hidden;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="matrix">
+        <p>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+        </p>
+        <p>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+        </p>
+        <p>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+        </p>
+        <p>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+        </p>
+        <p>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+        </p>
+        <p>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+        </p>
+        <p>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+        </p>
+        <p>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+        </p>
+        <p>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+        </p>
+        <p>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+        </p>
+        <p>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+        </p>
+        <p>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+        </p>
+        <p>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+        </p>
+        <p>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+        </p>
+        <p>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+        </p>
+        <p>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+        </p>
+        <p>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+        </p>
+        <p>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+        </p>
+        <p>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+        </p>
+        <p>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+            <b></b>
+        </p>
+    </div>
+</body>
+<script>
+var bgc = new Array(20).fill(0).map(it => new Array(10).fill(0))
+//stick是用来判断 那些部分可以move和rotate的
+var stick = new Array(20).fill(0).map(it => new Array(10).fill(0))
+// bgc[0][4] = 1;
+// bgc[0][5] = 1;
+// bgc[0][6] = 1;
+// bgc[0][3] = 1;
+// bgc[3][5]=1;
+console.dir(bgc)
+
+function draw(bgc) {
+    let huaban = document.querySelectorAll('b')
+    for (let i = 0; i < bgc.length; i++) {
+        for (let j = 0; j < bgc[i].length; j++) {
+            if (bgc[i][j] == 1) {
+                huaban[i * 10 + j].classList.add('c')
+            } else {
+                huaban[i * 10 + j].classList.remove('c')
+            }
+        }
+    }
+}
+draw(bgc)
+
+function drop(ary) {
+	brickBuilder()
+    dropId = setInterval(function() {
+        for (let i = ary.length - 1; i >= 0; i--) {
+            for (let j = 0; j < ary[i].length; j++) {
+                if (ary[i][j] === 1) {
+                    if (i === ary.length - 1) {
+                        clearInterval(dropId);
+                        console.log(i)
+                        // drop(bgc)
+
+                    } else {
+                        console.log(i)
+                        ary[i + 1][j] = 1;
+                        ary[i][j] = 0;
+                        //disdraw(i, j)
+                    }
+                }
+            }
+        }
+        // console.log(ary)
+        draw(ary)
+    }, 600)
+}
+drop(bgc)
+
+// function disdraw(i, j) {
+//     document.querySelectorAll('b')[i * 10 + j].classList.remove('c')
+// }
+
+function brickBuilder() {
+    //砖块一共有7种
+    var mark = Math.floor(Math.random() * 7)
+    var storage = [
+        [[0,4],[0,5],[1,4],[1,5]],
+        [[0,3],[0,4],[0,5],[0,6]],
+        [[1,4],[1,5],[1,6],[0,5]],
+        [[0,4],[0,5],[1,5],[1,6]],
+        [[1,4],[1,5],[0,5],[0,6]],
+        [[1,4],[1,5],[1,6],[0,6]],
+        [[0,4],[1,4],[1,5],[1,6]]
+    ]
+    storage[mark].forEach(item=>{
+    	bgc[item[0]][item[1]]=1
+    })
+}
+
+function rotate() {
+    //先以l为原型操作
+    addEventListener("keydown", function(event) {
+        if (event.keyCode == 38) {
+            for (let i = 0; i < bgc.length; i++) {
+                for (let j = 0; j < bgc[i].length; j++) {
+
+                }
+            }
+        }
+    })
+}
+
+function movie() {
+    addEventListener('keydown', function() {
+        //向左移动
+        if (event.keyCode === 37) {
+            for (let i = 0; i < bgc.length; i++) {
+                for (let j = 0; j < bgc[i].length; j++) {
+                    if (bgc[i][j] == 1) {
+                        if (j == 0) return;
+                        bgc[i][j] = 0;
+                        bgc[i][j - 1] = 1;
+                    }
+                }
+            }
+            draw(bgc)
+        }
+        //向右移动
+        else if (event.keyCode === 39) {
+            // console.log(bgc)
+            for (let i = 0; i < bgc.length; i++) {
+                for (let j = bgc[i].length - 1; j >= 0; j--) {
+                    if (bgc[i][j] == 1) {
+                        if (j == bgc[i].length - 1) return
+                        bgc[i][j] = 0;
+                        bgc[i][j + 1] = 1;
+                    }
+                }
+            }
+            draw(bgc)
+        }
+        //旋转
+        else if (event.keyCode === 38) {
+            let ary = []
+            for (let i = 0; i < bgc.length; i++) {
+                for (let j = 0; j < bgc[i].length; j++) {
+                    if (bgc[i][j] == 1) {
+                        ary.push([i, j])
+                    }
+                }
+            }
+            if (ary[1][1] > 0&& ary[1][1] < 8){
+            	//由—— 变 |
+                if (ary[0][0] == ary[1][0]) {
+                    bgc[ary[0][0]][ary[0][1]] = 0;
+                    bgc[ary[2][0]][ary[2][1]] = 0;
+                    bgc[ary[3][0]][ary[3][1]] = 0;
+                    bgc[ary[1][0] - 1][ary[1][1]] = 1;
+                    bgc[ary[1][0] + 1][ary[1][1]] = 1;
+                    bgc[ary[1][0] + 2][ary[1][1]] = 1;
+                    draw(bgc)
+                }
+                // 由 | 变 —— 
+                else {
+                    bgc[ary[0][0]][ary[0][1]] = 0;
+                    bgc[ary[2][0]][ary[2][1]] = 0;
+                    bgc[ary[3][0]][ary[3][1]] = 0;
+                    bgc[ary[1][0]][ary[1][1]-1] = 1;
+                    bgc[ary[1][0]][ary[1][1]+1] = 1;
+                    bgc[ary[1][0]][ary[1][1]+2] = 1;
+                    draw(bgc)
+                }
+            }
+        }
+    })
+}
+movie()
+</script>
+
+</html>

@@ -1752,7 +1752,40 @@ var diaozhatian_shiwo = {
             }
         }
     },
+    /**
+     * [assign Assigns own enumerable string keyed properties of source objects to the destination object. Source objects are applied from left to right. Subsequent sources overwrite property assignments of previous sources.]
+     * @param  {[type]}    object [ The destination object]
+     * @param  {...[type]} args   [The source object]
+     * @return {[type]}           [Returns object.]
+     */
+    assign:function(object,...args){
+        for(let i=0;i<args.length;i++){
+            for(key in args[i]){
+                if(args[i].hasOwnProperty(key)){
+                    object[key]=args[i][key]
+                }
+            }
+        }
+        return object
+    },
 
+    /**
+     * [assignIn This method is like _.assign except that it iterates over own and inherited source properties.]
+     * @param  {[type]}    object [The destination object.]
+     * @param  {...[type]} args   [The source objects.]
+     * @return {[type]}           [Returns object.]
+     */
+    assignIn:function(object,...args){
+        for(let i=0;i<args.length;i++){
+            for(key in args[i]){
+                    object[key]=args[i][key]
+            }
+        }
+        return object
+    },
+
+    assignInWith:function(object,sources,)
+     
     /**
      * [set Sets the value at path of object. If a portion of path doesn't exist, it's created. Arrays are created for missing index properties while objects are created for all other missing properties. Use _.setWith to customize path creation.]
      * @param {[type]} obj   [The object to modify]
