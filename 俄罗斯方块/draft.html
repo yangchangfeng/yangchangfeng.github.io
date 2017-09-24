@@ -10,30 +10,85 @@
     <p style='text-align:center'>
         <img width='100px' src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2WhOti17crdhQ5YaH0tWnaPwy-EL7rVEWpyH_VABFAmjfA8mZKA" style="position:relative">
     </p>
+    <textarea name="" id="" cols="30" rows="10"></textarea>
 </body>
 <script>
-var cat = document.querySelector('img');
-var angle = 0,
-    lastTime = null;
+// var cat = document.querySelector('img');
+// var angle = 0,
+//     lastTime = null;
 
-function animate(time) {
-    //console.log(time)
-    if (lastTime != null)
-        angle += (time - lastTime) * 0.001;
-    lastTime = time;
-    cat.style.top = (Math.sin(angle) * 20) + 'px';
-    cat.style.left = (Math.cos(angle) * 200) + 'px';
-    requestAnimationFrame(animate);
+// function animate(time) {
+//     //console.log(time)
+//     if (lastTime != null)
+//         angle += (time - lastTime) * 0.001;
+//     lastTime = time;
+//     cat.style.top = (Math.sin(angle) * 20) + 'px';
+//     cat.style.left = (Math.cos(angle) * 200) + 'px';
+//     requestAnimationFrame(animate);
+// }
+// requestAnimationFrame(animate);
+
+// function aaa() {
+//     addEventListener("keydown", function() {
+//         console.log(event.keyCode)
+//     })
+// }
+
+// aaa()
+function throttle(fn, gap) {
+    var lastRunTime = -Infinity
+    var context = this
+    return function(...args) {
+        var now = Date.now()
+        if (now - lastRunTime > gap) {
+            fn.apply(context, args)
+            lastRunTime = now
+        }
+    }
 }
-requestAnimationFrame(animate);
+
+function debounce(fn, delay) {
+    var timerId
+    var context = this
+    return function(...args) {
+        clearTimeout(timerId)
+        timerId = setTimeout(fn.bind(context, ...args), delay)
+    }
+}
 
 function aaa() {
-    addEventListener("keydown", function() {
-        console.log(event.keyCode)
-    })
+    console.log('向下向下')
 }
+var drop = throttle(aaa, 2000)
 
-aaa()
+function bbb() {
+    console.log('zuozuo')
+}
+var moviezuo = debounce(bbb, 500)
+addEventListener('keydown', function(event) {
+    if (event.keyCode === 40) {
+        drop()
+    }
+    if (event.keyCode === 37) {
+        moviezuo()
+    }
+})
+
+// var textarea=document.querySelector('textarea')
+// var timeout
+// textarea.addEventListener('keydown',function(){
+// 	clearTimeout(timeout);
+// 	timeout=setTimeout(()=>{
+// 		console.log('you stopped typing')
+// 	},500)
+// })
+var textarea = document.querySelector('textarea')
+// var timeout
+function test() {
+    console.log('stoped typing')
+}
+var test222 = debounce(test, 500)
+textarea.addEventListener('keydown', test222)
 </script>
 
 </html>
