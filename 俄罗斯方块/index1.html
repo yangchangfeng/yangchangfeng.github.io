@@ -304,6 +304,8 @@
 var bgc = new Array(20).fill(0).map(it => new Array(10).fill(0))
 //stick是用来判断 那些部分可以move和rotate的
 var stick = new Array(20).fill(0).map(it => new Array(10).fill(0))
+//记录活动积木的型号，这样方便movie里的旋转操作
+var typeNumber
 
 function draw(bgc) {
     // console.log('paint')
@@ -350,7 +352,9 @@ drop(bgc)
 
 function brickBuilder() {
     //砖块一共有7种
-    var mark = Math.floor(Math.random() * 7)
+    // var mark = Math.floor(Math.random() * 7)
+    var mark = 2
+    typeNumber = mark
     var storage = [
         [
             [0, 4],
@@ -431,7 +435,6 @@ function moveBottom() {
         }, i * 40)
     }
 }
-// var test = throttle(moveBottom, 80)
 
 function minRange(ary) {
     var storage = []
@@ -458,9 +461,8 @@ function movie() {
     addEventListener('keydown', function(event) {
         console.log(event.keyCode)
         event.preventDefault();
-        //向左移动
-        if (event.keyCode === 37 && flag) {
-            console.log(flag)
+        //从上到下，从左到右的顺序将活动积木的四个坐标记录下来
+        function photo() {
             let ary = []
             for (let i = 0; i < bgc.length; i++) {
                 for (let j = 0; j < bgc[i].length; j++) {
@@ -469,6 +471,12 @@ function movie() {
                     }
                 }
             }
+            return ary
+        }
+        //向左移动
+        if (event.keyCode === 37 && flag) {
+            console.log(flag)
+            let ary = photo()
             if (ary.every(item =>
                     item[1] !== 0
                 ) && ary.every(item => stick[item[0]][item[1] - 1] !== 1)) {
@@ -482,6 +490,7 @@ function movie() {
         }
         //向右移动
         else if (event.keyCode === 39 && flag) {
+            //这个不能用photo 因为这里的j的顺序和下面的逻辑有关联
             let ary = []
             for (let i = 0; i < bgc.length; i++) {
                 for (let j = bgc[i].length - 1; j >= 0; j--) {
@@ -499,57 +508,77 @@ function movie() {
             draw(bgc)
         }
         //向下加速
-        else if (event.keyCode === 40&&flag) {
+        else if (event.keyCode === 40 && flag) {
             moveBottom()
         }
         //空格键瞬间补位完成
         else if (event.keyCode === 32) {
-            let ary = []
-            for (let i = bgc.length - 1; i >= 0; i--) {
-                for (let j = 0; j < bgc[i].length; j++) {
-                    if (bgc[i][j] == 1 && stick[i][j] != 1) {
-                        ary.push([i, j])
-                    }
-                }
-            }
-            var l=minRange(ary)-1
-            ary.forEach(item=>{
-            	bgc[item[0]][item[1]]=0;
-            	bgc[item[0]+l][item[1]]=1;
+            let ary = photo()
+            var l = minRange(ary) - 1
+            ary.forEach(item => {
+                bgc[item[0]][item[1]] = 0;
+                bgc[item[0] + l][item[1]] = 1;
             })
             draw(bgc)
         }
         //旋转
         else if (event.keyCode === 38) {
-            let ary = []
-            for (let i = 0; i < bgc.length; i++) {
-                for (let j = 0; j < bgc[i].length; j++) {
-                    if (bgc[i][j] == 1) {
-                        ary.push([i, j])
+            let ary = photo()
+            if (typeNumber == 1) {
+                if (ary[1][1] > 0 && ary[1][1] < 8) {
+                    //由—— 变 |
+                    //限制条件分别是左墙限制，右墙限制，下边限制123
+                    if (ary[0][0] == ary[1][0] && ary[1][0] < 18 && stick[ary[1][0] + 1][ary[1][1]] !== 1 && stick[ary[1][0] + 2][ary[1][1]] !== 1) {
+                        bgc[ary[0][0]][ary[0][1]] = 0;
+                        bgc[ary[2][0]][ary[2][1]] = 0;
+                        bgc[ary[3][0]][ary[3][1]] = 0;
+                        bgc[ary[1][0] - 1][ary[1][1]] = 1;
+                        bgc[ary[1][0] + 1][ary[1][1]] = 1;
+                        bgc[ary[1][0] + 2][ary[1][1]] = 1;
+                        draw(bgc)
+                    }
+                    // 由 | 变 —— 
+                    if (ary[0][0] !== ary[1][0] && stick[ary[1][0]][ary[1][1] - 1] !== 1 && stick[ary[1][0]][ary[1][1] + 1] !== 1 && stick[ary[1][0]][ary[1][1] + 2] !== 1) {
+                        bgc[ary[0][0]][ary[0][1]] = 0;
+                        bgc[ary[2][0]][ary[2][1]] = 0;
+                        bgc[ary[3][0]][ary[3][1]] = 0;
+                        bgc[ary[1][0]][ary[1][1] - 1] = 1;
+                        bgc[ary[1][0]][ary[1][1] + 1] = 1;
+                        bgc[ary[1][0]][ary[1][1] + 2] = 1;
+                        draw(bgc)
                     }
                 }
-            }
-            if (ary[1][1] > 0 && ary[1][1] < 8) {
-                //由—— 变 |
-                if (ary[0][0] == ary[1][0]) {
-                    bgc[ary[0][0]][ary[0][1]] = 0;
-                    bgc[ary[2][0]][ary[2][1]] = 0;
-                    bgc[ary[3][0]][ary[3][1]] = 0;
-                    bgc[ary[1][0] - 1][ary[1][1]] = 1;
-                    bgc[ary[1][0] + 1][ary[1][1]] = 1;
-                    bgc[ary[1][0] + 2][ary[1][1]] = 1;
-                    draw(bgc)
+            } else if (typeNumber == 2) {
+                //山丘头朝上 （由上到左）
+                if (ary[2][0] == ary[0][0] + 1 && ary[2][1] == ary[0][1] && ary[0][0] + 1 == ary[3][0]) {
+                    if (stick[ary[2][0] + 1][ary[2][1]] == 0) {
+                        bgc[ary[3][0]][ary[3][1]] = 0;
+                        bgc[ary[2][0] + 1][ary[2][1]] = 1;
+                        draw(bgc)
+                    }
+                } else if (ary[2][0] == ary[0][0] + 1 && ary[2][1] == ary[0][1]) {
+                    //山丘头朝左（由左到下）
+                    if (stick[ary[2][0]][ary[2][1]+1]==0) {
+                        bgc[ary[0][0]][ary[0][1]] = 0;
+                        bgc[ary[2][0]][ary[2][1]+1] = 1;
+                        draw(bgc)
+                    }
+
+                } else if (ary[1][0] == ary[0][0]  && ary[1][1] == ary[0][1]+1 && ary[0][1] + 2 == ary[2][1]) {
+                    //山丘头朝下 （由下到右）因为变化的部分朝上 不用考虑是否会碰撞到已经固定的积木
+                    	bgc[ary[0][0]][ary[0][1]] = 0;
+                        bgc[ary[1][0]-1][ary[1][1]] = 1;
+                        draw(bgc)
+                } else {
+                    //山丘头朝右 （由右到上）
+                    if(stick[ary[1][0]][ary[1][1]-1]==0){
+                    	bgc[ary[3][0]][ary[3][1]] = 0;
+                        bgc[ary[1][0]][ary[1][1]-1] = 1;
+                        draw(bgc)
+                    }
                 }
-                // 由 | 变 —— 
-                else {
-                    bgc[ary[0][0]][ary[0][1]] = 0;
-                    bgc[ary[2][0]][ary[2][1]] = 0;
-                    bgc[ary[3][0]][ary[3][1]] = 0;
-                    bgc[ary[1][0]][ary[1][1] - 1] = 1;
-                    bgc[ary[1][0]][ary[1][1] + 1] = 1;
-                    bgc[ary[1][0]][ary[1][1] + 2] = 1;
-                    draw(bgc)
-                }
+            } else if(typeNumber==3){
+                //z型积木
             }
         }
     })
