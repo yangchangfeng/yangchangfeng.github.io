@@ -304,12 +304,6 @@
 var bgc = new Array(20).fill(0).map(it => new Array(10).fill(0))
 //stick是用来判断 那些部分可以move和rotate的
 var stick = new Array(20).fill(0).map(it => new Array(10).fill(0))
-// bgc[0][4] = 1;
-// bgc[0][5] = 1;
-// bgc[0][6] = 1;
-// bgc[0][3] = 1;
-// bgc[3][5]=1;
-console.dir(bgc)
 
 function draw(bgc) {
     // console.log('paint')
@@ -331,43 +325,28 @@ function drop(ary) {
     var lineary = []
     var dropId = setInterval(function() {
         for (let i = ary.length - 1; i >= 0; i--) {
-            var count = 0;
             for (let j = 0; j < ary[i].length; j++) {
                 if (ary[i][j] === 1 && stick[i][j] === 0) {
-                    count++;
-                    if (i === ary.length - 1 || ary[i + 1][j] == 1) {
+                    if (i === ary.length - 1 || stick[i + 1][j] == 1) {
                         stick = JSON.parse(JSON.stringify(bgc))
                         clearInterval(dropId);
-                        // console.log(i)
-                        // console.log(JSON.stringify(stick))
-                        console.log('下一轮')
+                        // console.log('下一轮')
                         return drop(bgc)
-
-                    }
-                    else {
+                    } else {
                         lineary.push([i, j])
                     }
                 }
             }
-            if (lineary.length === count && count !== 0) {
-                // console.log('一排哦')
-                lineary.forEach(item => {
-                    bgc[item[0] + 1][item[1]] = 1;
-                    bgc[item[0]][item[1]] = 0;
-
-                })
-                lineary = []
-            }
         }
-        // console.log('lala')
+        lineary.forEach(item => {
+            bgc[item[0] + 1][item[1]] = 1;
+            bgc[item[0]][item[1]] = 0;
+        })
+        lineary = []
         draw(ary)
     }, 600)
 }
 drop(bgc)
-
-// function disdraw(i, j) {
-//     document.querySelectorAll('b')[i * 10 + j].classList.remove('c')
-// }
 
 function brickBuilder() {
     //砖块一共有7种
@@ -422,21 +401,11 @@ function brickBuilder() {
     draw(bgc)
 }
 
-// function rotate() {
-//     //先以l为原型操作
-//     addEventListener("keydown", function(event) {
-//         if (event.keyCode == 38) {
-//             for (let i = 0; i < bgc.length; i++) {
-//                 for (let j = 0; j < bgc[i].length; j++) {
-
-//                 }
-//             }
-//         }
-//     })
-// }
-function aaa() {
+function moveBottom() {
     console.log('向下向下')
+    console.log(flag)
     let ary = []
+    let point = 0
     for (let i = bgc.length - 1; i >= 0; i--) {
         for (let j = 0; j < bgc[i].length; j++) {
             if (bgc[i][j] == 1 && stick[i][j] != 1) {
@@ -444,29 +413,54 @@ function aaa() {
             }
         }
     }
-    if (ary[0][0] + 3 <= bgc.length&&ary[0][0]+3<=stick[][]) {
-        for (let i = 0; i < 3; i++) {
-            setTimeout(() => {
-                // console.log(i, 'lalalal')
-                ary.forEach(item => {
-                    // console.log(i)
-                    bgc[item[0] + 1 + i][item[1]] = 1;
-                    bgc[item[0] + i][item[1]] = 0;
-                    
-                    draw(bgc)
-                })
-            }, i * 40)
-        }
-
+    console.log(JSON.stringify(ary))
+    let minrange = minRange(ary)
+    // console.log('最小值', minrange, JSON.stringify(stick))
+    if (minrange > 2) point = 3;
+    else point = minrange;
+    if (point !== 1) flag = false;
+    for (let i = 0; i < point - 1; i++) {
+        setTimeout(() => {
+            ary.forEach(item => {
+                bgc[item[0] + 1 + i][item[1]] = 1;
+                bgc[item[0] + i][item[1]] = 0;
+                if (i == point - 2) flag = true;
+                console.log(flag)
+                draw(bgc)
+            })
+        }, i * 40)
     }
 }
-var test=throttle(aaa,120)
+// var test = throttle(moveBottom, 80)
+
+function minRange(ary) {
+    var storage = []
+    ary.forEach(item => {
+        let flag = true
+        for (let i = item[0]; i <= bgc.length - 1; i++) {
+            if (stick[i][item[1]] === 1) {
+                storage.push(i - item[0])
+                flag = false
+                break;
+            }
+        }
+        if (flag) {
+            storage.push(bgc.length - item[0])
+        }
+    })
+    console.log('取值范围', storage)
+    return Math.min(...storage)
+}
+//向下加速时有若干setTimeout异步事件，这时候按左右键会穿插进异步里造成积木分裂，设置flag来判断异步是否完成
+var flag = true
+
 function movie() {
     addEventListener('keydown', function(event) {
-        //向左移动
         console.log(event.keyCode)
         event.preventDefault();
-        if (event.keyCode === 37) {
+        //向左移动
+        if (event.keyCode === 37 && flag) {
+            console.log(flag)
             let ary = []
             for (let i = 0; i < bgc.length; i++) {
                 for (let j = 0; j < bgc[i].length; j++) {
@@ -487,7 +481,7 @@ function movie() {
             draw(bgc)
         }
         //向右移动
-        else if (event.keyCode === 39) {
+        else if (event.keyCode === 39 && flag) {
             let ary = []
             for (let i = 0; i < bgc.length; i++) {
                 for (let j = bgc[i].length - 1; j >= 0; j--) {
@@ -505,31 +499,25 @@ function movie() {
             draw(bgc)
         }
         //向下加速
-        else if (event.keyCode === 40) {
-        	test()
-            // console.log('向下向下')
-            // let ary = []
-            // for (let i = bgc.length - 1; i >= 0; i--) {
-            //     for (let j = 0; j < bgc[i].length; j++) {
-            //         if (bgc[i][j] == 1 && stick[i][j] != 1) {
-            //             ary.push([i, j])
-            //         }
-            //     }
-            // }
-            // if (ary[0][0] + 2 <= bgc.length) {
-            //     for (let i = 0; i < 2; i++) {
-            //         setTimeout(() => {
-            //             // console.log(i, 'lalalal')
-            //             ary.forEach(item => {
-            //                 // console.log(i)
-            //                 bgc[item[0] + i][item[1]] = 0;
-            //                 bgc[item[0] + 1 + i][item[1]] = 1;
-            //                 draw(bgc)
-            //             })
-            //         },60*i)
-            //     }
-
-            // }
+        else if (event.keyCode === 40&&flag) {
+            moveBottom()
+        }
+        //空格键瞬间补位完成
+        else if (event.keyCode === 32) {
+            let ary = []
+            for (let i = bgc.length - 1; i >= 0; i--) {
+                for (let j = 0; j < bgc[i].length; j++) {
+                    if (bgc[i][j] == 1 && stick[i][j] != 1) {
+                        ary.push([i, j])
+                    }
+                }
+            }
+            var l=minRange(ary)-1
+            ary.forEach(item=>{
+            	bgc[item[0]][item[1]]=0;
+            	bgc[item[0]+l][item[1]]=1;
+            })
+            draw(bgc)
         }
         //旋转
         else if (event.keyCode === 38) {
