@@ -37,6 +37,14 @@
         background: #000;
     }
 
+    b.d {
+        border-color: #560000;
+    }
+
+    b.d:after {
+        background: #560000;
+    }
+
     b {
         width: 20px;
         height: 20px;
@@ -53,6 +61,8 @@
         background: #879372;
         overflow: hidden;
     }
+
+    button {}
     </style>
 </head>
 
@@ -298,7 +308,9 @@
             <b></b>
             <b></b>
         </p>
+        <button id='parking' style='width:50px;height:50px;'>暂停</button>
     </div>
+    <!-- <button style='width:50px;height:50px;'>暂停</button> -->
 </body>
 <script>
 var bgc = new Array(20).fill(0).map(it => new Array(10).fill(0))
@@ -322,38 +334,63 @@ function draw(bgc) {
 }
 draw(bgc)
 
-function drop(ary) {
-    brickBuilder()
-    var lineary = []
-    var dropId = setInterval(function() {
-        for (let i = ary.length - 1; i >= 0; i--) {
-            for (let j = 0; j < ary[i].length; j++) {
-                if (ary[i][j] === 1 && stick[i][j] === 0) {
-                    if (i === ary.length - 1 || stick[i + 1][j] == 1) {
-                        stick = JSON.parse(JSON.stringify(bgc))
-                        clearInterval(dropId);
-                        // console.log('下一轮')
-                        return drop(bgc)
-                    } else {
-                        lineary.push([i, j])
+function dropAndParking() {
+    let flag = true
+    let dropId = 0
+
+    function drop(ary, dropbrick) {
+        if (dropbrick) {
+            brickBuilder()
+        }
+        var lineary = []
+        dropId = setInterval(function() {
+            for (let i = ary.length - 1; i >= 0; i--) {
+                for (let j = 0; j < ary[i].length; j++) {
+                    if (ary[i][j] === 1 && stick[i][j] === 0) {
+                        if (i === ary.length - 1 || stick[i + 1][j] == 1) {
+                        	clearFilled()
+                            stick = JSON.parse(JSON.stringify(bgc))
+                            //插入清除满行函数直接操作stick
+                            // clearFilled()
+                            clearInterval(dropId);
+                            // console.log('下一轮')
+                            return drop(bgc,true)
+                        } else {
+                            lineary.push([i, j])
+                        }
                     }
                 }
             }
-        }
-        lineary.forEach(item => {
-            bgc[item[0] + 1][item[1]] = 1;
-            bgc[item[0]][item[1]] = 0;
+            lineary.forEach(item => {
+                bgc[item[0] + 1][item[1]] = 1;
+                bgc[item[0]][item[1]] = 0;
+            })
+            lineary = []
+            draw(ary)
+        }, 600)
+    }
+
+    function parkingg() {
+        parking.addEventListener('click', function(event) {
+            console.log(666)
+            if (flag) {
+                console.log('paring', dropId)
+                clearInterval(dropId);
+                flag = false
+            } else {
+                drop(bgc,false);
+                flag = true
+            }
         })
-        lineary = []
-        draw(ary)
-    }, 600)
+    }
+    drop(bgc,true)
+    parkingg()
 }
-drop(bgc)
+dropAndParking()
 
 function brickBuilder() {
     //砖块一共有7种
-    // var mark = Math.floor(Math.random() * 7)
-    var mark = 2
+    var mark = Math.floor(Math.random() * 7)
     typeNumber = mark
     var storage = [
         [
@@ -407,7 +444,6 @@ function brickBuilder() {
 
 function moveBottom() {
     console.log('向下向下')
-    console.log(flag)
     let ary = []
     let point = 0
     for (let i = bgc.length - 1; i >= 0; i--) {
@@ -417,7 +453,7 @@ function moveBottom() {
             }
         }
     }
-    console.log(JSON.stringify(ary))
+    // console.log(JSON.stringify(ary))
     let minrange = minRange(ary)
     // console.log('最小值', minrange, JSON.stringify(stick))
     if (minrange > 2) point = 3;
@@ -429,7 +465,6 @@ function moveBottom() {
                 bgc[item[0] + 1 + i][item[1]] = 1;
                 bgc[item[0] + i][item[1]] = 0;
                 if (i == point - 2) flag = true;
-                console.log(flag)
                 draw(bgc)
             })
         }, i * 40)
@@ -451,7 +486,6 @@ function minRange(ary) {
             storage.push(bgc.length - item[0])
         }
     })
-    console.log('取值范围', storage)
     return Math.min(...storage)
 }
 //向下加速时有若干setTimeout异步事件，这时候按左右键会穿插进异步里造成积木分裂，设置flag来判断异步是否完成
@@ -459,7 +493,7 @@ var flag = true
 
 function movie() {
     addEventListener('keydown', function(event) {
-        console.log(event.keyCode)
+        // console.log(event.keyCode)
         event.preventDefault();
         //从上到下，从左到右的顺序将活动积木的四个坐标记录下来
         function photo() {
@@ -475,7 +509,6 @@ function movie() {
         }
         //向左移动
         if (event.keyCode === 37 && flag) {
-            console.log(flag)
             let ary = photo()
             if (ary.every(item =>
                     item[1] !== 0
@@ -558,43 +591,178 @@ function movie() {
                     }
                 } else if (ary[2][0] == ary[0][0] + 1 && ary[2][1] == ary[0][1]) {
                     //山丘头朝左（由左到下）
-                    if (stick[ary[2][0]][ary[2][1]+1]==0) {
+                    if (stick[ary[2][0]][ary[2][1] + 1] == 0) {
                         bgc[ary[0][0]][ary[0][1]] = 0;
-                        bgc[ary[2][0]][ary[2][1]+1] = 1;
+                        bgc[ary[2][0]][ary[2][1] + 1] = 1;
                         draw(bgc)
                     }
 
-                } else if (ary[1][0] == ary[0][0]  && ary[1][1] == ary[0][1]+1 && ary[0][1] + 2 == ary[2][1]) {
+                } else if (ary[1][0] == ary[0][0] && ary[1][1] == ary[0][1] + 1 && ary[0][1] + 2 == ary[2][1]) {
                     //山丘头朝下 （由下到右）因为变化的部分朝上 不用考虑是否会碰撞到已经固定的积木
-                    	bgc[ary[0][0]][ary[0][1]] = 0;
-                        bgc[ary[1][0]-1][ary[1][1]] = 1;
-                        draw(bgc)
+                    bgc[ary[0][0]][ary[0][1]] = 0;
+                    bgc[ary[1][0] - 1][ary[1][1]] = 1;
+                    draw(bgc)
                 } else {
                     //山丘头朝右 （由右到上）
-                    if(stick[ary[1][0]][ary[1][1]-1]==0){
-                    	bgc[ary[3][0]][ary[3][1]] = 0;
-                        bgc[ary[1][0]][ary[1][1]-1] = 1;
+                    if (stick[ary[1][0]][ary[1][1] - 1] == 0) {
+                        bgc[ary[3][0]][ary[3][1]] = 0;
+                        bgc[ary[1][0]][ary[1][1] - 1] = 1;
                         draw(bgc)
                     }
                 }
-            } else if(typeNumber==3){
-                //z型积木
+            } else if (typeNumber == 3) {
+                //z型积木 从横着到竖着
+                if (ary[0][0] == ary[1][0]) {
+                    if (stick[ary[0][0] + 1][ary[0][1]] == 0 && stick[ary[0][0] + 2][ary[0][1]] == 0) {
+                        bgc[ary[0][0]][ary[0][1]] = 0;
+                        bgc[ary[3][0]][ary[3][1]] = 0;
+                        bgc[ary[0][0] + 1][ary[0][1]] = 1;
+                        bgc[ary[0][0] + 2][ary[0][1]] = 1;
+                        draw(bgc)
+                    }
+                } //从竖着到横着
+                else {
+                    if (stick[ary[2][0]][ary[2][1] + 1] == 0) {
+                        bgc[ary[1][0]][ary[1][1]] = 0;
+                        bgc[ary[3][0]][ary[3][1]] = 0;
+                        bgc[ary[0][0]][ary[0][1] - 1] = 1;
+                        bgc[ary[2][0]][ary[2][1] + 1] = 1;
+                        draw(bgc)
+                    }
+                }
+            } else if (typeNumber == 4) {
+                //反z型积木 从横着到竖着
+                if (ary[0][0] == ary[1][0]) {
+                    bgc[ary[1][0]][ary[1][1]] = 0;
+                    bgc[ary[2][0]][ary[2][1]] = 0;
+                    bgc[ary[2][0] - 1][ary[2][1]] = 1;
+                    bgc[ary[2][0] - 2][ary[2][1]] = 1;
+                    draw(bgc)
+                } //从竖着到横着
+                else {
+                    if (stick[ary[1][0] + 1][ary[1][1]] == 0 && stick[ary[2][0]][ary[2][1] + 1] == 0) {
+                        bgc[ary[0][0]][ary[0][1]] = 0;
+                        bgc[ary[1][0]][ary[1][1]] = 0;
+                        bgc[ary[1][0] + 1][ary[1][1]] = 1;
+                        bgc[ary[2][0]][ary[2][1] + 1] = 1;
+                        draw(bgc)
+                    }
+                }
+            } else if (typeNumber == 5) {
+                //正7头朝上，头朝上 到 头朝左（到正常书写的7）
+                if (ary[1][0] == ary[2][0] && ary[1][0] == ary[3][0]) {
+                    if (stick[ary[2][0] + 1][ary[2][1]] == 0) {
+                        bgc[ary[0][0]][ary[0][1]] = 0;
+                        bgc[ary[1][0]][ary[1][1]] = 0;
+                        bgc[ary[3][0]][ary[3][1]] = 0;
+                        bgc[ary[0][0]][ary[0][1] - 1] = 1;
+                        bgc[ary[0][0]][ary[0][1] - 2] = 1;
+                        bgc[ary[2][0] + 1][ary[2][1]] = 1;
+                        draw(bgc)
+                    }
+                } else if (ary[1][1] == ary[2][1] && ary[1][1] == ary[3][1]) {
+                    //正常7 到 头朝下7
+                    if (stick[ary[0][0] + 1][ary[0][1]] == 0 && stick[ary[1][0]][ary[1][1] + 1] == 0) {
+                        bgc[ary[2][0]][ary[2][1]] = 0;
+                        bgc[ary[3][0]][ary[3][1]] = 0;
+                        bgc[ary[0][0] + 1][ary[0][1]] = 1
+                        bgc[ary[1][0]][ary[1][1] + 1] = 1
+                        draw(bgc)
+                    }
+                } else if (ary[0][0] == ary[1][0] && ary[0][0] == ary[2][0]) {
+                    //头朝下7 到 头朝右
+                    if (stick[ary[3][0] + 1][ary[3][1]] == 0 && stick[ary[3][0] + 1][ary[3][1] + 1] == 0) {
+                        bgc[ary[1][0]][ary[1][1]] = 0;
+                        bgc[ary[2][0]][ary[2][1]] = 0;
+                        bgc[ary[3][0] + 1][ary[3][1]] = 1
+                        bgc[ary[3][0] + 1][ary[3][1] + 1] = 1
+                        draw(bgc)
+                    }
+                } else {
+                    //头朝右 到头朝上 一个循环结束
+                    if (stick[ary[0][0]][ary[0][1] + 2] == 0 && stick[ary[1][0]][ary[1][1] + 2] == 0) {
+                        bgc[ary[0][0]][ary[0][1]] = 0;
+                        bgc[ary[2][0]][ary[2][1]] = 0;
+                        bgc[ary[3][0]][ary[3][1]] = 0;
+                        bgc[ary[0][0]][ary[0][1] + 2] = 1;
+                        bgc[ary[1][0]][ary[1][1] + 2] = 1;
+                        bgc[ary[1][0]][ary[1][1] + 1] = 1;
+                        draw(bgc)
+                    }
+                }
+            } else if (typeNumber === 6) {
+                //反7头朝上，头朝上 到 头朝左
+                if (ary[1][0] == ary[2][0] && ary[1][0] == ary[3][0]) {
+                    if (stick[ary[1][0] + 1][ary[1][1]] == 0 && stick[ary[2][0] + 1][ary[2][1]] == 0) {
+                        bgc[ary[0][0]][ary[0][1]] = 0;
+                        bgc[ary[1][0]][ary[1][1]] = 0;
+                        bgc[ary[3][0]][ary[3][1]] = 0;
+                        bgc[ary[1][0] + 1][ary[1][1]] = 1;
+                        bgc[ary[2][0] + 1][ary[2][1]] = 1;
+                        bgc[ary[2][0] - 1][ary[2][1]] = 1;
+                        draw(bgc)
+                    }
+                } else if (ary[1][1] == ary[3][1] && ary[1][1] == ary[0][1]) {
+                    //头朝左 到 头朝下
+                    if (stick[ary[0][0]][ary[0][1] + 1] == 0 && stick[ary[1][0]][ary[1][1] + 1] == 0) {
+                        bgc[ary[1][0]][ary[1][1]] = 0;
+                        bgc[ary[2][0]][ary[2][1]] = 0;
+                        bgc[ary[3][0]][ary[3][1]] = 0;
+                        bgc[ary[0][0]][ary[0][1] + 1] = 1
+                        bgc[ary[0][0]][ary[0][1] - 1] = 1
+                        bgc[ary[1][0]][ary[1][1] + 1] = 1
+                        draw(bgc)
+                    }
+                } else if (ary[0][0] == ary[1][0] && ary[0][0] == ary[2][0]) {
+                    //头朝下 到 头朝右
+                    if (stick[ary[0][0] + 1][ary[0][1]] == 0 && stick[ary[0][0] + 2][ary[0][1]] == 0) {
+                        bgc[ary[2][0]][ary[2][1]] = 0;
+                        bgc[ary[3][0]][ary[3][1]] = 0;
+                        bgc[ary[0][0] + 1][ary[0][1]] = 1
+                        bgc[ary[0][0] + 2][ary[0][1]] = 1
+                        draw(bgc)
+                    }
+                } else {
+                    //头朝右 到头朝上 一个循环结束
+                    if (stick[ary[2][0]][ary[2][1] + 1] == 0 && stick[ary[2][0]][ary[2][1] + 2] == 0) {
+                        bgc[ary[1][0]][ary[1][1]] = 0;
+                        bgc[ary[3][0]][ary[3][1]] = 0;
+                        bgc[ary[2][0]][ary[2][1] + 1] = 1;
+                        bgc[ary[2][0]][ary[2][1] + 2] = 1;
+                        draw(bgc)
+                    }
+                }
             }
         }
     })
 }
 movie()
 
-function throttle(fn, gap) {
-    var lastRunTime = -Infinity
-    var context = this
-    return function(...args) {
-        var now = Date.now()
-        if (now - lastRunTime > gap) {
-            fn.apply(context, args)
-            lastRunTime = now
+function clearFilled() {
+    var noteFilled = []
+    var noteLittle = []
+    bgc.forEach((item, index) => {
+        let sum = item.reduce((a, b) => a + b)
+        if (sum == 10) {
+            noteFilled.push(index)
         }
+        if (sum > 0 && sum < 10) {
+            noteLittle.push(index)
+        }
+    })
+    if(noteFilled.length==0) return null
+    noteFilled.forEach(item => {
+        bgc[item].fill(0)
+    })
+    var i=19
+    while (noteLittle.length) {
+        var j = noteLittle.pop()
+        var temp=JSON.stringify(bgc[j])
+        bgc[j].fill(0)
+        bgc[i] = JSON.parse(temp)
+        i--;
     }
+    draw(bgc)
 }
 </script>
 
